@@ -60,7 +60,7 @@ class Settings:
     lat: float
     lon: float
     cycle_days: int
-    forecast_backend: str        # tabpfn_api | tabpfn_local | gbm | naive
+    forecast_backend: str        # blend | tabpfn_api | tabpfn_local | gbm | naive
 
     def require(self, field: str, var: str, why: str) -> str:
         val = getattr(self, field)
@@ -94,5 +94,5 @@ def settings() -> Settings:
         lat=float(env("LAT", "31.55")),
         lon=float(env("LON", "74.34")),
         cycle_days=int(env("CYCLE_DAYS", "30")),
-        forecast_backend=env("FORECAST_BACKEND", "tabpfn_api" if env("TABPFN_TOKEN") else "gbm"),
+        forecast_backend=env("FORECAST_BACKEND", "blend" if env("TABPFN_TOKEN") else "gbm"),
     )

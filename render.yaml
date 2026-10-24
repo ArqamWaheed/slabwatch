@@ -13,7 +13,7 @@ services:
       - key: PYTHON_VERSION
         value: 3.11.9
       - key: FORECAST_BACKEND
-        value: tabpfn_api          # falls back to gbm if you set this to gbm (no key needed)
+        value: blend               # gbm (B) + tabpfn_api, calibrated; set gbm to run without a TabPFN key
       - key: TABPFN_TOKEN
         sync: false
       - key: GEMMA_PROVIDER

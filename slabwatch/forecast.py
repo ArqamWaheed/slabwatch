@@ -6,6 +6,8 @@ Backends
   gbm           sklearn HistGradientBoostingRegressor(loss="quantile"), one model per quantile.
   naive         ratio = 1 at every quantile ("multiply it out"); a point forecast.
   last_ratio    ratio = last cycle's ratio at the same cut day (1 if unknown); a point forecast.
+  blend         mean of gbm (setting B) and tabpfn_api quantiles, then the per-level calibration fitted on
+                the dev homes (assets/calibration.json). Best on the pre-registered test homes (PROTOCOL-RESULTS.md).
 
 Both TabPFN packages: predict(X, output_type="quantiles", quantiles=[...]) -> list[np.ndarray],
 one array per quantile (verified in tabpfn 9.2.0 regressor.py and tabpfn-client 0.6.1 estimator.py).
@@ -23,11 +25,22 @@ from dataclasses import asdict, dataclass
 import numpy as np
 
 QUANTILES = (0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95)
-BACKENDS = ("naive", "last_ratio", "gbm", "tabpfn_local", "tabpfn_api")
+BACKENDS = ("naive", "last_ratio", "gbm", "tabpfn_local", "tabpfn_api", "blend")
+FLOOR = 0.05  # ratio quantiles never go below this (the cycle cannot end below 5% of the naive estimate)
 # Chosen once on the houses 1-10 GroupKFold (vs max_leaf_nodes=15/300 iters: MAPE 8.5% vs 9.2%).
 # That comparison used the same folds as the backtest, a mild selection bias noted in docs/DATA.md.
 GBM_PARAMS = dict(loss="quantile", max_iter=150, learning_rate=0.05, max_depth=3, min_samples_leaf=40,
                   l2_regularization=1.0)
+# Setting B, chosen on the dev homes by pinball loss (slabwatch/protocol.py). Used by the blend.
+GBM_PARAMS_B = {**GBM_PARAMS, "max_depth": 5, "min_samples_leaf": 20, "max_iter": 250}
+
+
+def calibration_shifts(name: str = "blend"):
+    import json
+    from importlib import resources
+
+    data = json.loads(resources.files("slabwatch").joinpath("assets/calibration.json").read_text())
+    return np.array(data["shifts_log"][name])
 
 
 def monotone(values) -> np.ndarray:
@@ -82,16 +95,25 @@ def _value_at(level: float, levels, values) -> float:
 
 
 class Forecaster:
-    def __init__(self, backend: str = "gbm", quantiles=QUANTILES, token: str = "", seed: int = 0):
+    def __init__(self, backend: str = "gbm", quantiles=QUANTILES, token: str = "", seed: int = 0,
+                 gbm_params: dict | None = None):
         if backend not in BACKENDS:
             raise ValueError(f"backend must be one of {BACKENDS}")
+        if backend == "blend" and tuple(quantiles) != QUANTILES:
+            raise ValueError("blend calibration was fitted at QUANTILES")
         self.backend, self.q, self.token, self.seed = backend, tuple(quantiles), token, seed
+        self.gbm_params = gbm_params or GBM_PARAMS
         self._models = None
 
     # ---------------------------------------------------------------- fit
     def fit(self, X, y):
         X = np.asarray(X, float)
         y = np.asarray(y, float)
+        if self.backend == "blend":
+            self._models = [Forecaster("gbm", self.q, seed=self.seed, gbm_params=GBM_PARAMS_B).fit(X, y),
+                            Forecaster("tabpfn_api", self.q, token=self.token, seed=self.seed).fit(X, y)]
+            self._fitted = True
+            return self
         if self.backend == "gbm":
             from sklearn.ensemble import HistGradientBoostingRegressor
             from threadpoolctl import threadpool_limits
@@ -100,7 +122,7 @@ class Forecaster:
             # contention made 5-fold x 11 quantiles take 150 s instead of ~10 s on a 16-thread laptop.
             with threadpool_limits(1):
                 self._models = [
-                    HistGradientBoostingRegressor(**GBM_PARAMS, quantile=a, random_state=self.seed).fit(X, y)
+                    HistGradientBoostingRegressor(**self.gbm_params, quantile=a, random_state=self.seed).fit(X, y)
                     for a in self.q
                 ]
         elif self.backend == "tabpfn_local":
@@ -138,6 +160,9 @@ class Forecaster:
             return np.repeat(lr[:, None], len(self.q), axis=1)
         if self._models is None:
             raise RuntimeError("call fit() first")
+        if self.backend == "blend":
+            parts = [np.maximum(m.predict_ratio_quantiles(X), FLOOR) for m in self._models]
+            return monotone(np.mean(parts, axis=0) * np.exp(calibration_shifts("blend"))[None, :])
         if self.backend == "gbm":
             from threadpoolctl import threadpool_limits
 

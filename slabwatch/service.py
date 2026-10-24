@@ -36,7 +36,7 @@ def model(backend: str | None = None, max_rows: int = 3000):
     backend = backend or s.forecast_backend
     with _lock:
         df = training_rows()
-        if backend.startswith("tabpfn") and len(df) > max_rows:
+        if (backend.startswith("tabpfn") or backend == "blend") and len(df) > max_rows:
             df = df.sample(max_rows, random_state=0)
         f = Forecaster(backend, token=s.tabpfn_token)
         if backend not in ("naive", "last_ratio"):
