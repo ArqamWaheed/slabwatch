@@ -4,8 +4,8 @@
 
 Providers
   google: Google AI Studio REST, POST {BASE}/models/{GEMMA_MODEL}:generateContent
-          (model id `gemma-3-27b-it` is TO VERIFY against GET {BASE}/models with your key;
-           Gemma on AI Studio may not support responseMimeType JSON mode, so we parse text).
+          (verified 2026-10-24: the key lists `gemma-4-26b-a4b-it` and `gemma-4-31b-it`;
+           JSON mode (responseMimeType) works; reasoning arrives in parts marked thought=true, which are skipped).
   ollama: POST {OLLAMA_URL}/api/generate with images=[b64] and format=<JSON schema>, model gemma3:4b.
 
 Outputs are validated strictly; anything that fails validation becomes a refusal, never a guess.
@@ -73,19 +73,29 @@ class Refused(ValueError):
 
 
 def _extract_json(text: str) -> dict:
+    """The answer is the LAST complete JSON object. Gemma 4 on AI Studio writes its reasoning first,
+    and that reasoning often restates the prompt's example objects (e.g. {"fca_rs_per_unit": null})."""
     text = text.strip()
-    fence = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.S)
-    if fence:
-        text = fence.group(1)
-    else:
-        start, end = text.find("{"), text.rfind("}")
-        if start < 0 or end <= start:
+    fences = re.findall(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.S)
+    candidates = fences[::-1]
+    if not candidates:
+        dec = json.JSONDecoder()
+        found, i = [], text.find("{")
+        while i >= 0:
+            try:
+                obj, end = dec.raw_decode(text, i)
+                found.append(obj)
+                i = text.find("{", end)
+            except json.JSONDecodeError:
+                i = text.find("{", i + 1)
+        if not found:
             raise Refused(f"no JSON object in model output: {text[:120]!r}")
-        text = text[start:end + 1]
-    try:
-        obj = json.loads(text)
-    except json.JSONDecodeError as e:
-        raise Refused(f"invalid JSON from model: {e}") from None
+        obj = found[-1]
+    else:
+        try:
+            obj = json.loads(candidates[0])
+        except json.JSONDecodeError as e:
+            raise Refused(f"invalid JSON from model: {e}") from None
     if not isinstance(obj, dict):
         raise Refused("model output is not a JSON object")
     return obj
@@ -160,11 +170,13 @@ def _google(s: Settings, prompt: str, image: bytes | None, mime: str) -> str:
     if image is not None:
         parts.append({"inline_data": {"mime_type": mime, "data": base64.b64encode(image).decode()}})
     body = {"contents": [{"role": "user", "parts": parts}],
-            "generationConfig": {"temperature": 0, "maxOutputTokens": 1024}}
-    r = post_json(f"{GOOGLE_BASE}/models/{s.gemma_model}:generateContent", body, timeout=90,
+            "generationConfig": {"temperature": 0, "maxOutputTokens": 4096,
+                                 "responseMimeType": "application/json"}}
+    r = post_json(f"{GOOGLE_BASE}/models/{s.gemma_model}:generateContent", body, timeout=180,
                   headers={"x-goog-api-key": key})
     try:
-        return "".join(p.get("text", "") for p in r["candidates"][0]["content"]["parts"])
+        # Gemma 4 returns its reasoning as parts marked "thought": true; only the rest is the answer.
+        return "".join(p.get("text", "") for p in r["candidates"][0]["content"]["parts"] if not p.get("thought"))
     except (KeyError, IndexError):
         raise Refused(f"Gemma returned no text: {str(r)[:200]}") from None
 
@@ -192,7 +204,9 @@ def _ask(prompt: str, image: bytes | None, mime: str, schema: dict, s: Settings 
     return _extract_json(text)
 
 
-def read_meter(photo: Path | bytes, mime: str | None = None, s: Settings | None = None) -> dict:
+def read_meter(photo: Path | str | bytes, mime: str | None = None, s: Settings | None = None) -> dict:
+    if isinstance(photo, str):
+        photo = Path(photo)
     if isinstance(photo, Path):
         mime = mime or mimetypes.guess_type(photo.name)[0] or "image/jpeg"
         photo = photo.read_bytes()

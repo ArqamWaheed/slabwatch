@@ -1,0 +1,63 @@
+{
+  "log": [
+    {
+      "q": "NEPRA fuel charges adjustment October 2026 DISCOs per unit",
+      "n": 8
+    },
+    {
+      "q": "NEPRA FCA October 2026",
+      "n": 8
+    }
+  ],
+  "replay": "https://www.browserbase.com/sessions/f0d97acf-a9bf-43a0-aefc-248927febfcb",
+  "docs": [
+    {
+      "url": "https://www.dawn.com/news/2035673/nepra-notifies-consumers-of-rs111-per-unit-higher-fuel-costs-in-oct-billing",
+      "title": "Nepra notifies consumers of Rs1.11 per unit higher fuel costs in Oct billing - Pakistan - DAWN.COM",
+      "published": "2026-10-08T00:00:00+00:00",
+      "query": "NEPRA fuel charges adjustment October 2026 DISCOs per unit",
+      "status": 200,
+      "fca": {
+        "fca_rs_per_unit": null,
+        "refused": "article states no DISCO FCA"
+      },
+      "snippet": "Nepra notifies consumers of Rs1.11 per unit higher fuel costs in Oct billing Khaleeq Kiani Published October 8, 2026 2 LISTEN TO ARTICLE 1x 1.2x 1.5x COMMENTS JOIN OUR WHATSAPP CHANNEL ISLAMABAD: The National Electric Power Regulatory Authority (Nepra) on Thursday notified electricity consumers of a"
+    },
+    {
+      "url": "https://www.dawn.com/news/2035673",
+      "title": "Nepra notifies consumers of Rs1.11 per unit higher fuel costs in Oct billing - Pakistan - DAWN.COM",
+      "published": "2026-10-08T00:00:00+00:00",
+      "query": "NEPRA fuel charges adjustment October 2026 DISCOs per unit",
+      "status": 200,
+      "fca": {
+        "fca_rs_per_unit": null,
+        "refused": "article states no DISCO FCA"
+      },
+      "snippet": "Nepra notifies consumers of Rs1.11 per unit higher fuel costs in Oct billing Khaleeq Kiani Published October 8, 2026 2 LISTEN TO ARTICLE 1x 1.2x 1.5x COMMENTS JOIN OUR WHATSAPP CHANNEL ISLAMABAD: The National Electric Power Regulatory Authority (Nepra) on Thursday notified electricity consumers of a"
+    },
+    {
+      "url": "https://tribune.com.pk/story/2633704/nepra-allows-rs111-per-unit-fuel-adjustment-in-october-billing",
+      "title": "NEPRA allows Rs1.11 per unit fuel adjustment in October billing",
+      "published": "2026-10-08T00:00:00+00:00",
+      "query": "NEPRA fuel charges adjustment October 2026 DISCOs per unit",
+      "status": 200,
+      "fca": {
+        "fca_rs_per_unit": null,
+        "refused": "article states no DISCO FCA"
+      },
+      "snippet": "TODAY’S PAPER | OCTOBER 24, 2026 | EPAPER HOME LATEST PAKISTAN BUSINESS WORLD SPORTS OPINION LIFE & STYLE T-MAGAZINE BLOGS TECH CARTOON Home Business NEPRA allows Rs1.11 per unit fuel adjustment in October billing Regulator says adjustment follows legal amendments allowing tariff changes based on fu"
+    },
+    {
+      "url": "https://www.brecorder.com/news/40441693/hearing-today-nepra-to-consider-rs173unit-hike-for-august-fca",
+      "title": "Hearing today: Nepra to consider Rs1.73/unit hike for August FCA - Business & Finance - Business Recorder",
+      "published": "2026-09-28T00:00:00+00:00",
+      "query": "NEPRA FCA October 2026",
+      "status": 200,
+      "fca": {
+        "fca_rs_per_unit": null,
+        "refused": "article states no DISCO FCA"
+      },
+      "snippet": "BUSINESS & FINANCE PRINT EDITION: 2026-09-29 Hearing today: Nepra to consider Rs1.73/unit hike for August FCA Published September 29, 2026 Updated September 29, 2026 Save 2 min Comment By Wasim Iqbal ISLAMABAD: The National Electric Power Regulatory Authority (Nepra) is set to hear a request on Tues"
+    }
+  ]
+}

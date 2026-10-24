@@ -24,8 +24,6 @@ def cmd_doctor(a: argparse.Namespace) -> int:
         "GOOGLE_API_KEY (Gemma via AI Studio)": s.google_api_key if s.gemma_provider == "google" else "n/a",
         "DATABASE_URL (Tiger Cloud Postgres)": s.database_url,
         "BROWSERBASE_API_KEY": s.browserbase_api_key,
-        "BROWSERBASE_PROJECT_ID": s.browserbase_project_id,
-        "SERPAPI_KEY": s.serpapi_key,
         "NTFY_TOPIC": s.ntfy_topic,
     }
     for k, v in keys.items():
@@ -68,9 +66,9 @@ def _ping(what: str, s) -> int:
         elif what == "ntfy":
             from slabwatch.service import notify
             print("ntfy status", notify("Slabwatch doctor test"))
-        elif what == "serpapi":
+        elif what == "browserbase":
             from slabwatch.tariff import search
-            print(len(search("NEPRA fuel charges adjustment", s=s)), "results")
+            print(len(search("NEPRA fuel charges adjustment", s=s)), "Browserbase search results")
         elif what == "tabpfn":
             import numpy as np
 
@@ -242,7 +240,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="cmd", required=True)
 
     d = sub.add_parser("doctor", help="check keys, imports, data; optionally ping one service")
-    d.add_argument("--ping", choices=["weather", "tiger", "gemma", "ntfy", "serpapi", "tabpfn", "temporal"])
+    d.add_argument("--ping", choices=["weather", "tiger", "gemma", "ntfy", "browserbase", "tabpfn", "temporal"])
     d.set_defaults(fn=cmd_doctor)
 
     f = sub.add_parser("fetch-data", help="download + extract PRECON from Open Data Pakistan, aggregate to daily kWh")
@@ -293,7 +291,7 @@ def build_parser() -> argparse.ArgumentParser:
     fb.add_argument("--text-file"); fb.add_argument("--photo"); fb.add_argument("--no-gemma", action="store_true")
     fb.set_defaults(fn=cmd_fetch_bill)
 
-    tw = sub.add_parser("tariff-watch", help="SerpApi search for this month's NEPRA FCA; store + hybrid search")
+    tw = sub.add_parser("tariff-watch", help="Browserbase search + page read for this month's NEPRA FCA; Gemma extracts; store + hybrid search")
     tw.add_argument("--search", help="query stored docs instead (hybrid RRF if embeddings exist)")
     tw.add_argument("--no-db", action="store_true")
     tw.set_defaults(fn=cmd_tariff_watch)

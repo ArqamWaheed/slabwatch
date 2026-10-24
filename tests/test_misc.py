@@ -60,3 +60,18 @@ def test_reference_number_must_be_14_digits():
     assert clean_ref("04 11111 1234567 U") == "04111111234567"
     with pytest.raises(ValueError):
         clean_ref("123")
+
+
+def test_extract_json_takes_last_object():
+    from slabwatch.gemma import _extract_json
+
+    text = 'The prompt says return {"fca_rs_per_unit": null} if absent. Answer: {"fca_rs_per_unit": 1.11, "quote": "x"}'
+    assert _extract_json(text)["fca_rs_per_unit"] == 1.11
+
+
+def test_number_in_quote():
+    from slabwatch.tariff import number_in
+
+    assert number_in(1.11, "NEPRA notified the FCA for August 2026 at Rs1.11 per unit")
+    assert number_in(0.5, "a cut of 50 paisa per unit")
+    assert not number_in(1.11, "NEPRA notified the FCA for August 2026 at Rs1.73 per unit")

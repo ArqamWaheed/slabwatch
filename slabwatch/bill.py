@@ -37,7 +37,6 @@ def fetch_bill(ref: str, disco: str = "lesco", s: Settings | None = None, shots:
     """Open {PITC}/{disco}bill in a Browserbase session, submit the reference no, return text + screenshot."""
     s = s or settings()
     key = s.require("browserbase_api_key", "BROWSERBASE_API_KEY", "PITC bill fetch")
-    project = s.require("browserbase_project_id", "BROWSERBASE_PROJECT_ID", "PITC bill fetch")
     disco = disco.lower().removesuffix("bill")
     if disco not in DISCOS:
         raise ValueError(f"disco must be one of {sorted(DISCOS)}")
@@ -49,7 +48,8 @@ def fetch_bill(ref: str, disco: str = "lesco", s: Settings | None = None, shots:
         raise RuntimeError("pip install -e .[browser]  (browserbase + playwright; no local browser needed)") from None
 
     bb = Browserbase(api_key=key)
-    session = bb.sessions.create(project_id=project)
+    # The API key resolves the project; BROWSERBASE_PROJECT_ID is only passed if someone set it.
+    session = bb.sessions.create(**({"project_id": s.browserbase_project_id} if s.browserbase_project_id else {}))
     replay = f"https://www.browserbase.com/sessions/{session.id}"
     shots = shots or (RESULTS / "bills")
     shots.mkdir(parents=True, exist_ok=True)
