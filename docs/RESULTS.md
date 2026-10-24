@@ -42,40 +42,44 @@ Cliff threshold: per-house median 30-day total (synthetic). Skipped: none. Secon
 
 ## Weather: clim
 
-Run 2026-10-24T08:35:28+00:00 · 10 houses · 201 windows · 1407 rows · 5 folds · remaining-days temperature = day-of-year climatology 2008-2017 for the remaining days (no forecast skill).
-Cliff threshold: per-house median 30-day total (synthetic). Skipped: none. Seconds (fit+predict, all folds): {'naive': 0.01, 'last_ratio': 0.0, 'gbm': 12.14}.
+Run 2026-10-24T12:17:47+00:00 · 41 houses · 884 windows · 6188 rows · 5 folds · remaining-days temperature = day-of-year climatology 2008-2017 for the remaining days (no forecast skill).
+Cliff threshold: per-house median 30-day total (synthetic). Skipped: none. Seconds (fit+predict, all folds): {'naive': 0.01, 'last_ratio': 0.0, 'gbm': 19.56, 'tabpfn_api': 40.64}.
 
 ### Overall
 
 | model | MAPE | P10-P90 coverage (80% nominal) | Brier | precision | recall | base rate |
 |---|---|---|---|---|---|---|
-| naive | 10.7% | 0.0% | 0.064 | 93.3% | 93.6% | 48.8% |
-| last_ratio | 13.1% | 0.0% | 0.069 | 93.2% | 92.6% | 48.8% |
-| gbm | 8.5% | 69.8% | 0.044 | 93.0% | 94.8% | 48.8% |
+| naive | 11.5% | 0.0% | 0.076 | 90.8% | 93.6% | 48.1% |
+| last_ratio | 14.9% | 0.0% | 0.064 | 92.7% | 94.1% | 48.1% |
+| gbm | 8.2% | 77.2% | 0.044 | 92.3% | 95.8% | 48.1% |
+| tabpfn_api | 8.6% | 87.1% | 0.047 | 91.1% | 95.5% | 48.1% |
 
 ### MAPE of final units by cut day
 
 | model | day 5 | day 7 | day 10 | day 14 | day 18 | day 21 | day 25 |
 |---|---|---|---|---|---|---|---|
-| naive | 17.8% | 16.2% | 13.1% | 10.3% | 7.8% | 6.3% | 3.7% |
-| last_ratio | 23.3% | 19.5% | 15.6% | 12.5% | 9.3% | 7.3% | 4.2% |
-| gbm | 14.3% | 12.5% | 10.9% | 8.0% | 6.0% | 4.8% | 3.2% |
+| naive | 19.0% | 17.3% | 14.3% | 11.0% | 8.2% | 6.5% | 3.9% |
+| last_ratio | 26.8% | 22.8% | 17.9% | 13.7% | 10.2% | 8.1% | 4.7% |
+| gbm | 14.2% | 12.6% | 10.3% | 7.6% | 5.7% | 4.3% | 2.7% |
+| tabpfn_api | 15.6% | 13.6% | 10.7% | 8.0% | 5.8% | 4.3% | 2.3% |
 
 ### Brier score of the cliff call by cut day
 
 | model | day 5 | day 7 | day 10 | day 14 | day 18 | day 21 | day 25 |
 |---|---|---|---|---|---|---|---|
-| naive | 0.124 | 0.109 | 0.075 | 0.050 | 0.030 | 0.030 | 0.030 |
-| last_ratio | 0.114 | 0.095 | 0.080 | 0.065 | 0.060 | 0.050 | 0.020 |
-| gbm | 0.071 | 0.060 | 0.051 | 0.039 | 0.035 | 0.031 | 0.021 |
+| naive | 0.118 | 0.115 | 0.089 | 0.071 | 0.053 | 0.049 | 0.036 |
+| last_ratio | 0.096 | 0.085 | 0.078 | 0.058 | 0.052 | 0.051 | 0.029 |
+| gbm | 0.067 | 0.060 | 0.051 | 0.040 | 0.035 | 0.030 | 0.024 |
+| tabpfn_api | 0.073 | 0.065 | 0.053 | 0.045 | 0.037 | 0.031 | 0.022 |
 
 ### MAPE by house size tercile (median cycle total)
 
 | model | small | mid | large |
 |---|---|---|---|
-| naive | 11.5% | 9.1% | 11.4% |
-| last_ratio | 13.5% | 10.4% | 15.1% |
-| gbm | 9.7% | 7.3% | 8.5% |
+| naive | 11.4% | 10.1% | 12.7% |
+| last_ratio | 13.8% | 12.4% | 18.2% |
+| gbm | 8.2% | 6.9% | 9.5% |
+| tabpfn_api | 9.9% | 6.8% | 8.9% |
 
 ## Caveats
 
