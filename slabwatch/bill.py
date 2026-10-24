@@ -1,4 +1,9 @@
-"""Fetch the household's duplicate bill from the PITC portal through a Browserbase browser.
+"""Fetch the household's duplicate bill from the PITC portal.
+
+Default: a plain form post from the machine the Temporal worker runs on (a home connection in
+Pakistan). Checked 2026-10-24: bill.pitc.com.pk answers locally in about 0.2 s, but times out from
+Browserbase's cloud browsers (as do lesco.gov.pk and, with a Cloudflare 403, nepra.org.pk). Browserbase
+would need its paid residential proxies for this site, so fetch_bill_browserbase() is kept for that case.
 
 The portal has no API. Observed in static HTML on 2026-10-24 (https://bill.pitc.com.pk/lescobill):
   ASP.NET WebForms page; input#searchTextBox (maxlength 14, validator ^\\d{6,14}$),
@@ -33,8 +38,57 @@ def clean_ref(ref: str) -> str:
     return digits
 
 
-def fetch_bill(ref: str, disco: str = "lesco", s: Settings | None = None, shots: Path | None = None) -> dict:
-    """Open {PITC}/{disco}bill in a Browserbase session, submit the reference no, return text + screenshot."""
+def _hidden_fields(html: str) -> dict:
+    out = {}
+    for tag in re.findall(r"<input[^>]+>", html):
+        name = re.search(r'name="([^"]+)"', tag)
+        if name and 'type="hidden"' in tag:
+            val = re.search(r'value="([^"]*)"', tag)
+            out[name.group(1)] = (val.group(1) if val else "").replace("&amp;", "&")
+    return out
+
+
+def html_text(html: str) -> str:
+    html = re.sub(r"(?is)<(script|style)[^>]*>.*?</\1>", " ", html)
+    html = re.sub(r"(?i)<br\s*/?>|</(td|tr|p|div|h\d)>", "\n", html)
+    text = re.sub(r"<[^>]+>", " ", html).replace("&nbsp;", " ").replace("&amp;", "&")
+    return "\n".join(re.sub(r"[ \t]+", " ", ln).strip() for ln in text.splitlines() if ln.strip())
+
+
+def fetch_bill(ref: str, disco: str = "lesco", rural: bool = False, s: Settings | None = None) -> dict:
+    """Post the reference number to {PITC}/{disco}bill from this machine and return the bill page text."""
+    import http.cookiejar
+    import urllib.parse
+    import urllib.request
+
+    disco = disco.lower().removesuffix("bill")
+    if disco not in DISCOS:
+        raise ValueError(f"disco must be one of {sorted(DISCOS)}")
+    ref = clean_ref(ref)
+    url = f"{PITC}/{disco}bill"
+    jar = http.cookiejar.CookieJar()
+    op = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
+    op.addheaders = [("User-Agent", "Mozilla/5.0 (slabwatch; household bill check)")]
+    page = op.open(url, timeout=30).read().decode("utf-8", "replace")
+    if re.search(r'class="captcha-img"|<img[^>]+captcha', page, re.I):
+        return {"ok": False, "reason": "captcha shown; upload a bill photo instead", "url": url}
+    form = {**_hidden_fields(page), "rbSearchByList": "refno", "searchTextBox": ref,
+            "ruCodeTextBox": "R" if rural else "", "btnSearch": "Search"}
+    r = op.open(urllib.request.Request(url, data=urllib.parse.urlencode(form).encode(), method="POST"),
+                timeout=60)
+    html = r.read().decode("utf-8", "replace")
+    out_dir = RESULTS / "bills"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / f"{disco}-{dt.datetime.now():%Y%m%d-%H%M%S}.html").write_text(html)
+    text = html_text(html)
+    ok = bool(re.search(r"UNITS|KWH", text, re.I)) and ref[-7:] in re.sub(r"\D", "", text)
+    return {"ok": ok, "reason": None if ok else "no bill found for that reference number", "text": text,
+            "final_url": r.geturl(), "url": url}
+
+
+def fetch_bill_browserbase(ref: str, disco: str = "lesco", s: Settings | None = None,
+                           shots: Path | None = None) -> dict:
+    """Open {PITC}/{disco}bill in a Browserbase session (needs a proxy that can reach PITC)."""
     s = s or settings()
     key = s.require("browserbase_api_key", "BROWSERBASE_API_KEY", "PITC bill fetch")
     disco = disco.lower().removesuffix("bill")

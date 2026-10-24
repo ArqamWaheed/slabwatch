@@ -92,7 +92,7 @@ async def alert_activity(household_id: str, message: str) -> None:
 
 @activity.defn
 async def bill_and_score_activity(household_id: str, cycle_start: str) -> dict:
-    """Fetch the bill (Browserbase), store history, and score the last forecast of this cycle."""
+    """Fetch the bill (PITC form post from this machine), store history, score this cycle's forecast."""
     from slabwatch import bill, store
 
     def run() -> dict:

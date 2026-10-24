@@ -286,7 +286,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("db-init", help="create tables (+hypertables, +pgvector if available)").set_defaults(fn=cmd_db_init)
 
-    fb = sub.add_parser("fetch-bill", help="PITC duplicate bill via Browserbase (or parse a saved text / photo)")
+    fb = sub.add_parser("fetch-bill", help="PITC duplicate bill (form post from this machine), or parse a saved text / photo)")
     fb.add_argument("--ref", help="14-digit reference number"); fb.add_argument("--disco", default="lesco")
     fb.add_argument("--text-file"); fb.add_argument("--photo"); fb.add_argument("--no-gemma", action="store_true")
     fb.set_defaults(fn=cmd_fetch_bill)
