@@ -35,3 +35,10 @@ unar on House3/5 CRC; FCA query usefulness.
 - `features.py` rows + leakage-safe `cut_features` · `forecast.py` backends + p_cross · `decide.py` verdicts
 - `evaluate.py` backtest -> docs/RESULTS.md · `service.py` glue · `web.py` + `static/index.html`
 - `gemma.py` · `bill.py` · `tariff.py` · `store.py` + `sql/schema.sql` · `workflows.py` + `worker.py`
+
+## Build log 2026-10-24 ~11:15 UTC (stopped: usage limit)
+- Started in background: `fetch-data --houses all` (log: scratchpad fetch.log) and CPU torch + tabpfn install into .venv.
+- NEXT: 1) check `data/precon` has 42 houses, then `build-features` + `backtest` (naive/last_ratio/gbm) over all 42.
+  2) TabPFN local: check whether v2 runs without a license (else needs user's TABPFN_TOKEN), add a model-version option in forecast.py, then backtest with `--sample`.
+  3) Polish static/index.html, deploy to Render (needs user's account).
+- NEED FROM USER: Prior Labs token, Render/Tiger/Browserbase/SerpApi/Google AI Studio keys, ntfy topic, 14-digit bill reference number, last 12 months of units, meter photos, Sun 10:00-11:30 PKT family session.
