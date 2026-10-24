@@ -19,7 +19,7 @@ services:
       - key: GEMMA_PROVIDER
         value: google
       - key: GEMMA_MODEL
-        value: gemma-3-27b-it      # TO VERIFY against your AI Studio model list
+        value: gemma-4-26b-a4b-it  # listed by AI Studio for this key on 2026-10-24
       - key: GOOGLE_API_KEY
         sync: false
       - key: DATABASE_URL
