@@ -16,6 +16,7 @@ import base64
 import json
 import mimetypes
 import re
+import time
 from pathlib import Path
 
 from slabwatch.config import MissingKey, Settings, settings
@@ -172,8 +173,17 @@ def _google(s: Settings, prompt: str, image: bytes | None, mime: str) -> str:
     body = {"contents": [{"role": "user", "parts": parts}],
             "generationConfig": {"temperature": 0, "maxOutputTokens": 4096,
                                  "responseMimeType": "application/json"}}
-    r = post_json(f"{GOOGLE_BASE}/models/{s.gemma_model}:generateContent", body, timeout=180,
-                  headers={"x-goog-api-key": key})
+    from slabwatch.net import HTTPFail
+
+    for attempt in range(4):  # the free tier answers 429 / 503 to quick back-to-back calls
+        try:
+            r = post_json(f"{GOOGLE_BASE}/models/{s.gemma_model}:generateContent", body, timeout=180,
+                          headers={"x-goog-api-key": key})
+            break
+        except HTTPFail as e:
+            if e.status not in (429, 500, 503) or attempt == 3:
+                raise
+            time.sleep(10 * (attempt + 1))
     try:
         # Gemma 4 returns its reasoning as parts marked "thought": true; only the rest is the answer.
         return "".join(p.get("text", "") for p in r["candidates"][0]["content"]["parts"] if not p.get("thought"))

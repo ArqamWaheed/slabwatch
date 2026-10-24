@@ -129,14 +129,14 @@ def extract_fca(text: str, s: Settings | None = None) -> dict:
     except Refused as e:
         return {"fca_rs_per_unit": None, "refused": str(e)}
     except Exception as e:  # noqa: BLE001 - a timeout on one article is not fatal
-        return {"fca_rs_per_unit": None, "refused": f"Gemma call failed: {type(e).__name__}"}
+        return {"fca_rs_per_unit": None, "refused": f"Gemma call failed: {str(e)[:160]}"}
     val, quote = got.get("fca_rs_per_unit"), got.get("quote")
     if val is None:
         return {"fca_rs_per_unit": None, "refused": "article states no DISCO FCA"}
     if not quote or _norm(quote) not in _norm(text):
-        return {"fca_rs_per_unit": None, "refused": "quoted sentence not found on the page"}
+        return {"fca_rs_per_unit": None, "refused": "quoted sentence not found on the page", "quote": quote}
     if not number_in(float(val), quote):
-        return {"fca_rs_per_unit": None, "refused": f"number {val} not in the quoted sentence"}
+        return {"fca_rs_per_unit": None, "refused": f"number {val} not in the quoted sentence", "quote": quote}
     if not 0 < abs(float(val)) < 15:
         return {"fca_rs_per_unit": None, "refused": f"{val} Rs/unit is outside any recent FCA"}
     return {**got, "fca_rs_per_unit": float(val), "refused": None}

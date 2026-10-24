@@ -53,8 +53,23 @@ def has_embedding_column(c) -> bool:
                           "AND column_name='embedding'").fetchone())
 
 
+_ST = {}
+
+
+def _embed_local(text: str) -> list[float] | None:
+    """BAAI/bge-base-en-v1.5 (MIT, 768-d) via sentence-transformers, run on this machine."""
+    try:
+        from sentence_transformers import SentenceTransformer
+    except ImportError:
+        return None
+    if "m" not in _ST:
+        _ST["m"] = SentenceTransformer("BAAI/bge-base-en-v1.5")
+    return _ST["m"].encode([text], normalize_embeddings=True)[0].tolist()
+
+
 def embed(text: str, s: Settings | None = None) -> list[float] | None:
-    """Open embedding model through Ollama (/api/embed). Returns None if unavailable."""
+    """Open embedding model: Ollama (/api/embed, e.g. embeddinggemma) if reachable, else bge-base locally.
+    Returns None if neither is available (hybrid search then degrades to full-text only)."""
     s = s or settings()
     from slabwatch.net import post_json
 
@@ -63,7 +78,8 @@ def embed(text: str, s: Settings | None = None) -> list[float] | None:
         v = r["embeddings"][0]
         return v if len(v) == EMBED_DIM else None
     except Exception:  # noqa: BLE001
-        return None
+        v = _embed_local(text)
+        return v if v and len(v) == EMBED_DIM else None
 
 
 def _vec(v: list[float]) -> str:

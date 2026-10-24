@@ -21,7 +21,7 @@ dependencies = [
 
 [project.optional-dependencies]
 local = ["tabpfn>=9.2"]                         # TabPFN-3.5 local weights + torch (heavy; laptop only)
-db = ["psycopg[binary]>=3.2"]                   # Tiger Cloud / Postgres
+db = ["psycopg[binary]>=3.2", "sentence-transformers>=3"]   # Tiger Cloud / Postgres; bge-base embeddings
 temporal = ["temporalio>=1.7"]
 browser = ["browserbase>=1.4", "playwright>=1.45"]  # connect_over_cdp; no local browser download needed
 data = ["libarchive-c>=5.1"]                    # RAR fallback when unar/unrar/7z are absent

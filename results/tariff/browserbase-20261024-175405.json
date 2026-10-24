@@ -1,0 +1,71 @@
+{
+  "log": [
+    {
+      "q": "NEPRA fuel charges adjustment October 2026 DISCOs per unit",
+      "n": 8
+    },
+    {
+      "q": "NEPRA FCA October 2026",
+      "n": 8
+    }
+  ],
+  "replay": "https://www.browserbase.com/sessions/ee898de6-dd4c-469b-8af3-e6160441368e",
+  "docs": [
+    {
+      "url": "https://www.dawn.com/news/2035673/nepra-notifies-consumers-of-rs111-per-unit-higher-fuel-costs-in-oct-billing",
+      "title": "Nepra notifies consumers of Rs1.11 per unit higher fuel costs in Oct billing - Pakistan - DAWN.COM",
+      "published": "2026-10-08T00:00:00+00:00",
+      "query": "NEPRA fuel charges adjustment October 2026 DISCOs per unit",
+      "status": 200,
+      "fca": {
+        "fca_rs_per_unit": null,
+        "refused": "number 1.11 not in the quoted sentence",
+        "quote": "In a notification, Nepra said it had decided that the “positive fuel cost adjustment (FCA) for August 2026, i.e. Rs1.1086/kWh … shall be applicable to all the consumer categories of K-Electric and ex-Wapda distribution companies (XWDISCOs), except lifeline consumers, electric vehicle charging stations and prepaid electricity consumers of all categories who opted for the prepaid tariff”."
+      },
+      "snippet": "In a notification, Nepra said it had decided that the “positive fuel cost adjustment (FCA) for August 2026, i.e. Rs1.1086/kWh … shall be applicable to all the consumer categories of K-Electric and ex-Wapda distribution companies (XWDISCOs), except lifeline consumers, electric vehicle charging stations and prepaid electricity consumers of all categories who opted for the prepaid tariff”."
+    },
+    {
+      "url": "https://www.dawn.com/news/2035673",
+      "title": "Nepra notifies consumers of Rs1.11 per unit higher fuel costs in Oct billing - Pakistan - DAWN.COM",
+      "published": "2026-10-08T00:00:00+00:00",
+      "query": "NEPRA fuel charges adjustment October 2026 DISCOs per unit",
+      "status": 200,
+      "fca": {
+        "fca_rs_per_unit": null,
+        "refused": "number 1.11 not in the quoted sentence",
+        "quote": "In a notification, Nepra said it had decided that the “positive fuel cost adjustment (FCA) for August 2026, i.e. Rs1.1086/kWh … shall be applicable to all the consumer categories of K-Electric and ex-Wapda distribution companies (XWDISCOs), except lifeline consumers, electric vehicle charging stations and prepaid electricity consumers of all categories who opted for the prepaid tariff”."
+      },
+      "snippet": "In a notification, Nepra said it had decided that the “positive fuel cost adjustment (FCA) for August 2026, i.e. Rs1.1086/kWh … shall be applicable to all the consumer categories of K-Electric and ex-Wapda distribution companies (XWDISCOs), except lifeline consumers, electric vehicle charging stations and prepaid electricity consumers of all categories who opted for the prepaid tariff”."
+    },
+    {
+      "url": "https://tribune.com.pk/story/2633704/nepra-allows-rs111-per-unit-fuel-adjustment-in-october-billing",
+      "title": "NEPRA allows Rs1.11 per unit fuel adjustment in October billing",
+      "published": "2026-10-08T00:00:00+00:00",
+      "query": "NEPRA fuel charges adjustment October 2026 DISCOs per unit",
+      "status": 200,
+      "fca": {
+        "fca_rs_per_unit": 1.11,
+        "direction": "increase",
+        "reference_month": "August 2026",
+        "billing_month": "October 2026",
+        "applies_to": "ex-WAPDA DISCOs and K-Electric, except lifeline, EVCS and prepaid consumers",
+        "quote": "NEPRA notified the positive Fuel Charges Adjustment (FCA) for August 2026 at Rs1.11 per unit, citing an increase in the actual fuel cost of electricity generation compared with the reference fuel charges.",
+        "refused": null
+      },
+      "snippet": "NEPRA notified the positive Fuel Charges Adjustment (FCA) for August 2026 at Rs1.11 per unit, citing an increase in the actual fuel cost of electricity generation compared with the reference fuel charges."
+    },
+    {
+      "url": "https://www.dawn.com/news/2035796",
+      "title": "Higher fuel costs weigh on October power bills - Newspaper - DAWN.COM",
+      "published": "2026-10-09T00:00:00+00:00",
+      "query": "NEPRA fuel charges adjustment October 2026 DISCOs per unit",
+      "status": 200,
+      "fca": {
+        "fca_rs_per_unit": null,
+        "refused": "number 1.11 not in the quoted sentence",
+        "quote": "In a notification, Nepra said it had decided that the “positive fuel cost adjustment (FCA) for August 2026, i.e. Rs1.1086 per kWh … shall be applicable to all the consumer categories of K-Electric and ex-Wapda distribution companies (XWDISCOs), except lifeline consumers, electric vehicle charging sta­tions and prepaid consumers of all categories who opted for the prepaid tariff”."
+      },
+      "snippet": "In a notification, Nepra said it had decided that the “positive fuel cost adjustment (FCA) for August 2026, i.e. Rs1.1086 per kWh … shall be applicable to all the consumer categories of K-Electric and ex-Wapda distribution companies (XWDISCOs), except lifeline consumers, electric vehicle charging sta­tions and prepaid consumers of all categories who opted for the prepaid tariff”."
+    }
+  ]
+}
