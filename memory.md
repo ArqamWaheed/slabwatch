@@ -49,3 +49,11 @@ unar on House3/5 CRC; FCA query usefulness.
 - Web: /api/forecast with tabpfn_api ~11 s cold.
 - BLOCKED: Render deploy (Chrome extension denied on dashboard.render.com).
 - NEED FROM USER: allow Render in the extension (or a Render API key), 14-digit bill ref + DISCO, meter photos, the family session.
+
+## Build log 2026-10-24 ~13:45 UTC
+- Pre-registered protocol (docs/PROTOCOL.md, commit 383ed2c before test). Test (even homes): blend best (pinball 0.0319, MAPE 8.1%, cover 82.4%); GBM 0.0326/8.2%; TabPFN alone 0.0342/8.7% = loss by the rule. TabPFN best late-cycle (day 25 2.3% vs 3.7%). App default FORECAST_BACKEND=blend (assets/calibration.json).
+- bill_estimate.py on NEPRA SRO 279(I)/2026 tariff (docs/TARIFF.md); cliff 195->205 ~ Rs31.7k over 7 bills (estimate).
+- Bill reading eval on public sample bills (images git-ignored, units-only truth in eval/bill_truth.json): 29/35 months exact.
+- Web page redesigned (meter LCD); /api/bill-photo added; local server: `uvicorn slabwatch.web:app --port 8765`.
+- First forecast after start ~60 s (blend fit). Possible improvement: persist fitted GBM.
+- Still TODO: Render deploy (needs extension permission or API key), real meter photos, family session, write the post.
