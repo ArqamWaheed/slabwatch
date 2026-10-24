@@ -233,8 +233,10 @@ def read_bill_text(text: str, s: Settings | None = None) -> dict:
     return validate_bill(_ask(BILL_PROMPT + text[:20000], None, "text/plain", BILL_SCHEMA, s))
 
 
-def read_bill_image(photo: Path, s: Settings | None = None) -> dict:
+def read_bill_image(photo: Path | bytes, s: Settings | None = None, mime: str | None = None) -> dict:
     """Fallback when the PITC portal can't be fetched: the user uploads a photo of the bill."""
-    mime = mimetypes.guess_type(photo.name)[0] or "image/jpeg"
+    if isinstance(photo, Path):
+        mime = mime or mimetypes.guess_type(photo.name)[0] or "image/jpeg"
+        photo = photo.read_bytes()
     prompt = BILL_PROMPT.replace("Below is the text of", "This image is").replace("BILL TEXT:\n", "")
-    return validate_bill(_ask(prompt, photo.read_bytes(), mime, BILL_SCHEMA, s))
+    return validate_bill(_ask(prompt, photo, mime or "image/jpeg", BILL_SCHEMA, s))

@@ -29,6 +29,7 @@ class ForecastIn(BaseModel):
     threshold: float | None = Field(default=None, gt=0)
     cycle_days: int | None = Field(default=None, ge=20, le=40)
     prev_cycle_units: float | None = Field(default=None, ge=0)
+    sanctioned_kw: float = Field(default=2.0, gt=0, le=50)
     meta: dict[str, float] | None = None
 
 
@@ -89,7 +90,8 @@ def forecast(body: ForecastIn) -> dict:
 
     try:
         out = forecast_cycle(body.cycle_start, body.start_reading, [r.model_dump() for r in body.readings],
-                             body.threshold, body.cycle_days, body.meta, body.prev_cycle_units)
+                             body.threshold, body.cycle_days, body.meta, body.prev_cycle_units,
+                             sanctioned_kw=body.sanctioned_kw)
         _warm["state"] = "ready"
         return out
     except Exception as e:  # noqa: BLE001
@@ -136,6 +138,24 @@ async def photo(file: UploadFile = File(...)) -> JSONResponse:
         return JSONResponse(read_meter(data, file.content_type))
     except Exception as e:  # noqa: BLE001
         raise _error(e) from None
+
+
+@app.post("/api/bill-photo")
+async def bill_photo(file: UploadFile = File(...)) -> JSONResponse:
+    """Gemma reads the usage history off a photo of the paper bill. Only months/units/amounts are returned;
+    the reference number is dropped so it never reaches the page."""
+    from slabwatch.gemma import read_bill_image
+
+    data = await file.read()
+    if not data or len(data) > MAX_PHOTO:
+        raise HTTPException(400, "photo must be between 1 byte and 8 MB")
+    if not (file.content_type or "").startswith("image/"):
+        raise HTTPException(400, "upload an image")
+    try:
+        got = read_bill_image(data, mime=file.content_type)
+    except Exception as e:  # noqa: BLE001
+        raise _error(e) from None
+    return JSONResponse({"current_units": got.get("current_units"), "history": got.get("history", [])})
 
 
 def serve(host: str = "0.0.0.0", port: int = 8000) -> None:

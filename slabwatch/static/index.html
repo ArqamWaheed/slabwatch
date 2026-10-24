@@ -4,70 +4,143 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Slabwatch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Atkinson+Hyperlegible+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
-  :root { --paper:#F6F4EF; --ink:#1D2433; --muted:#5B6474; --rule:#D4D0C6; --safe:#2F7D4F; --watch:#B7791F;
-          --act:#C2410C; --band:#9DB4D3; --card:#FFFFFF; }
-  @media (prefers-color-scheme: dark) {
-    :root { --paper:#14171D; --ink:#E8E6E1; --muted:#9AA3B2; --rule:#2C313B; --card:#1C2028; --band:#3E5E8C; }
+  /* The page borrows from the meter itself: grey-green casing, a backlit LCD, one red line at the limit. */
+  :root {
+    --casing:#E4E9E1; --ink:#14201A; --muted:#55615A; --rule:#C4CCC0; --field:#F5F7F3;
+    --lcd:#C3D1AC; --lcd-ink:#1C2914; --lcd-dim:#7D8D6C;
+    --limit:#B42318; --safe:#2F6B3E; --watch:#9A6100; --band:#5F7F64;
   }
-  * { box-sizing: border-box; }
-  body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  main { max-width:560px; margin:0 auto; padding:20px 16px 48px; }
-  h1 { font-size:1.4rem; margin:0 0 4px; } .sub { color:var(--muted); margin:0 0 18px; font-size:.95rem; }
-  .card { background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:16px; margin-bottom:14px; }
-  label { display:block; font-size:.85rem; color:var(--muted); margin:10px 0 4px; }
-  input { width:100%; font:inherit; padding:10px; border:1px solid var(--rule); border-radius:8px; background:transparent; color:inherit; }
-  .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  button { font:inherit; font-weight:600; padding:11px 14px; border-radius:8px; border:0; background:var(--ink); color:var(--paper); width:100%; margin-top:14px; cursor:pointer; }
-  button.ghost { background:transparent; color:var(--ink); border:1px solid var(--rule); }
-  #status { font-size:.9rem; color:var(--muted); min-height:1.3em; }
-  .verdict { font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-size:.8rem; }
-  .v-safe{color:var(--safe)} .v-watch,.v-unsure{color:var(--watch)} .v-act,.v-already_over{color:var(--act)}
-  .msg { font-size:1.05rem; margin:6px 0; } .ur { color:var(--muted); font-style:italic; }
-  .bar { position:relative; height:34px; margin:18px 0 6px; border-bottom:1px solid var(--rule); }
-  .band { position:absolute; top:8px; height:16px; background:var(--band); border-radius:4px; }
-  .mid { position:absolute; top:4px; width:2px; height:24px; background:var(--ink); }
-  .thr { position:absolute; top:0; width:2px; height:34px; background:var(--act); }
-  .ticks { display:flex; justify-content:space-between; font-size:.8rem; color:var(--muted); }
-  .big { font-size:1.6rem; font-weight:700; } small, .muted { color:var(--muted); font-size:.85rem; }
-  ul { padding-left:18px; margin:6px 0 0; } li { margin:2px 0; }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --casing:#121815; --ink:#E2E8E1; --muted:#9AA79E; --rule:#2B3530; --field:#1A221D;
+      --lcd:#A7B98F; --lcd-ink:#16200F; --lcd-dim:#61714F;
+      --limit:#F0614F; --safe:#6FBF85; --watch:#E2A642; --band:#4E6B53;
+    }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--casing); color:var(--ink);
+         font:17px/1.5 "Atkinson Hyperlegible", system-ui, sans-serif; }
+  main { max-width:34rem; margin:0 auto; padding:20px 16px 56px; }
+  h1 { font-size:1.15rem; margin:0; font-weight:700; }
+  .lede { margin:2px 0 18px; color:var(--muted); }
+
+  /* The one bold element: the readout. */
+  .lcd { background:var(--lcd); color:var(--lcd-ink); border-radius:6px; padding:16px 16px 12px;
+         box-shadow: inset 0 2px 0 rgba(0,0,0,.18), inset 0 -1px 0 rgba(255,255,255,.35); }
+  .lcd .digits { font-family:"Atkinson Hyperlegible Mono", ui-monospace, monospace; font-weight:700;
+                 font-size:clamp(3rem, 16vw, 4.6rem); line-height:1; letter-spacing:-.02em;
+                 font-variant-numeric:tabular-nums; }
+  .lcd .digits.empty { color:var(--lcd-dim); }
+  .lcd .unit { font-size:1rem; font-weight:700; margin-left:.35rem; }
+  .lcd .caption { margin:4px 0 0; font-size:.95rem; }
+  .scale { position:relative; height:40px; margin:26px 0 2px; }
+  .scale .track { position:absolute; left:0; right:0; top:19px; height:2px; background:var(--lcd-dim); }
+  .scale .band { position:absolute; top:11px; height:18px; background:var(--lcd-ink); opacity:.28; border-radius:2px; }
+  .scale .mid { position:absolute; top:6px; width:3px; height:28px; background:var(--lcd-ink); }
+  .scale .limit { position:absolute; top:0; width:3px; height:40px; background:var(--limit); }
+  .scale .limit span { position:absolute; top:-18px; left:-10px; font-size:.75rem; font-weight:700; color:var(--limit); white-space:nowrap; }
+  .ticks { display:flex; justify-content:space-between; font-size:.8rem; color:var(--lcd-ink); opacity:.75;
+           font-family:"Atkinson Hyperlegible Mono", monospace; }
+
+  .verdict { margin:18px 0 4px; font-size:1.25rem; font-weight:700; }
+  .v-safe { color:var(--safe); } .v-watch, .v-unsure { color:var(--watch); } .v-act, .v-already_over { color:var(--limit); }
+  .msg { margin:0 0 6px; }
+  .ur { font-style:italic; color:var(--muted); margin:6px 0; }  /* Roman Urdu, so left-to-right Latin script */
+  .money { border-left:3px solid var(--limit); padding:2px 0 2px 12px; margin:14px 0; }
+  .money strong { font-size:1.2rem; }
+  .muted { color:var(--muted); font-size:.9rem; }
+
+  form { margin-top:22px; }
+  fieldset { border:0; border-top:1px solid var(--rule); margin:0; padding:14px 0 4px; }
+  legend { font-weight:700; padding:0 6px 0 0; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  label { display:block; font-size:.9rem; color:var(--muted); margin:10px 0 4px; }
+  input[type=date], input[type=number] { width:100%; font:inherit; padding:10px 12px; border:1px solid var(--rule);
+          border-radius:6px; background:var(--field); color:inherit; }
+  input:focus-visible, button:focus-visible, .filebtn:focus-within, summary:focus-visible { outline:3px solid var(--band); outline-offset:2px; }
+  .filebtn { position:relative; display:inline-flex; align-items:center; gap:8px; padding:9px 12px; border:1px dashed var(--muted);
+             border-radius:6px; cursor:pointer; font-size:.95rem; margin-top:10px; color:var(--ink); }
+  .filebtn input { position:absolute; opacity:0; width:1px; height:1px; }
+  button.go { width:100%; margin-top:18px; padding:13px; font:inherit; font-weight:700; border:0; border-radius:6px;
+              background:var(--ink); color:var(--casing); cursor:pointer; }
+  button.go:disabled { opacity:.6; cursor:progress; }
+  #status { min-height:1.4em; margin:10px 0 0; font-size:.92rem; color:var(--muted); }
+  details { margin-top:12px; } summary { cursor:pointer; color:var(--muted); }
+  ul { padding-left:18px; margin:6px 0; } li { margin:3px 0; }
+  table.hist { border-collapse:collapse; font-size:.9rem; margin-top:8px; }
+  table.hist td { padding:2px 10px 2px 0; font-variant-numeric:tabular-nums; }
+  table.hist td.over { color:var(--limit); font-weight:700; }
+  footer { margin-top:28px; }
+  @media (max-width:380px) { .row { grid-template-columns:1fr; } }
+  @media (prefers-reduced-motion:no-preference) { .scale .band, .scale .mid { transition:left .5s ease, width .5s ease; } }
 </style>
 </head>
 <body>
 <main>
   <h1>Slabwatch</h1>
-  <p class="sub">Will this month's bill go over the protected limit? Enter today's meter reading (or a photo) and see where the cycle will likely end.</p>
-  <p id="status" role="status">Checking the server…</p>
+  <p class="lede">Where will this month's units land? One meter reading is enough to check before the bill decides for you.</p>
 
-  <form class="card" id="f">
-    <div class="row">
-      <div><label for="start">Cycle started (last bill's reading date)</label><input id="start" type="date" required></div>
-      <div><label for="sr">Reading on that date (kWh)</label><input id="sr" type="number" step="0.1" min="0" required></div>
+  <section class="lcd" aria-live="polite">
+    <div><span class="digits empty" id="p50">---</span><span class="unit">units</span></div>
+    <p class="caption" id="caption">Likely total for this billing month. Enter a reading below.</p>
+    <div class="scale" aria-hidden="true">
+      <div class="track"></div>
+      <div class="band" id="band" style="left:0;width:0"></div>
+      <div class="mid" id="mid" style="left:-10px"></div>
+      <div class="limit" id="limitline" style="left:66.6%"><span id="limitlabel">200</span></div>
     </div>
-    <div class="row">
-      <div><label for="day">Today's date</label><input id="day" type="date" required></div>
-      <div><label for="now">Today's reading (kWh)</label><input id="now" type="number" step="0.1" min="0" required></div>
-    </div>
-    <label for="photo">…or photograph the meter (Gemma reads it; you confirm)</label>
-    <input id="photo" type="file" accept="image/*" capture="environment">
-    <div class="row">
-      <div><label for="thr">Limit (units)</label><input id="thr" type="number" min="1" value="200"></div>
-      <div><label for="prev">Last bill's units (optional)</label><input id="prev" type="number" min="0"></div>
-    </div>
-    <button type="submit">Forecast this cycle</button>
-  </form>
+    <div class="ticks"><span>0</span><span id="tickmax">300</span></div>
+  </section>
 
-  <section class="card" id="out" hidden>
-    <div class="verdict" id="verdict"></div>
+  <section id="result" hidden>
+    <p class="verdict" id="verdict"></p>
     <p class="msg" id="msg"></p>
     <p class="ur" id="ur"></p>
-    <div class="bar" id="bar"><div class="band" id="band"></div><div class="mid" id="mid"></div><div class="thr" id="thrm" title="limit"></div></div>
-    <div class="ticks"><span id="lo"></span><span id="hi"></span></div>
-    <p><span class="big" id="pc"></span> <span class="muted">chance of going over the limit</span></p>
-    <p class="muted">Band = 10th to 90th percentile of the forecast final units; line = middle guess; red = limit.</p>
-    <details><summary class="muted">What this assumed</summary><ul id="assume"></ul></details>
+    <div class="money" id="money" hidden></div>
+    <details><summary>What this assumed</summary><ul id="assume"></ul></details>
   </section>
-  <p class="muted">The forecast is in units because you control units; the rupee price per unit changes every month. Nothing here is advice from your DISCO.</p>
+
+  <form id="f" novalidate>
+    <fieldset>
+      <legend>Last bill</legend>
+      <div class="row">
+        <div><label for="start">Reading date on the bill</label><input id="start" type="date" required></div>
+        <div><label for="sr">Meter reading on that date</label><input id="sr" type="number" step="0.1" min="0" inputmode="decimal" required></div>
+      </div>
+      <div class="row">
+        <div><label for="prev">Units on that bill (optional)</label><input id="prev" type="number" min="0" inputmode="numeric"></div>
+        <div><label for="kw">Sanctioned load, kW</label><input id="kw" type="number" min="0.5" step="0.5" value="2" inputmode="decimal"></div>
+      </div>
+      <label class="filebtn" id="billbtn"><input id="billphoto" type="file" accept="image/*">Fill these from a photo of the bill</label>
+      <div id="hist"></div>
+    </fieldset>
+    <fieldset>
+      <legend>Today</legend>
+      <div class="row">
+        <div><label for="day">Date</label><input id="day" type="date" required></div>
+        <div><label for="now">Meter reading now</label><input id="now" type="number" step="0.1" min="0" inputmode="decimal" required></div>
+      </div>
+      <label class="filebtn" id="meterbtn"><input id="photo" type="file" accept="image/*" capture="environment">Read it from a meter photo</label>
+    </fieldset>
+    <details><summary>Limit and rules</summary>
+      <div class="row">
+        <div><label for="thr">Limit, units per month</label><input id="thr" type="number" min="1" value="200"></div>
+        <div><label for="days">Days in billing month</label><input id="days" type="number" min="20" max="40" value="30"></div>
+      </div>
+      <p class="muted">200 is the protected-consumer limit in NEPRA's tariff as of October 2026. Change it if the rule changes.</p>
+    </details>
+    <button class="go" id="go" type="submit">Check this month</button>
+    <p id="status" role="status"></p>
+  </form>
+
+  <footer class="muted">
+    <p>The forecast is in units because units are what you control. Rupee figures are estimates on the February 2026 tariff plus this month's fuel adjustment, and leave out lifeline and income tax. This is not a bill.</p>
+    <p>Photos go to Gemma, an open model, to read the digits. This page doesn't store them.</p>
+  </footer>
 </main>
 <script>
 const $ = (id) => document.getElementById(id);
@@ -75,65 +148,109 @@ const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return
                 set(k,v){ try { localStorage.setItem(k,v); } catch(e){} } };
 const today = new Date(Date.now() - new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
 $("day").value = today;
-for (const k of ["start","sr","thr","prev"]) { const v = store.get("sw-"+k); if (v) $(k).value = v; }
+for (const k of ["start","sr","prev","kw","thr","days"]) { const v = store.get("sw-"+k); if (v) $(k).value = v; }
+const say = (t) => { $("status").textContent = t; };
+const rs = (x) => "Rs " + Math.round(x).toLocaleString("en-PK");
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
 
 async function wake() {
-  const t0 = Date.now();
-  const slow = setTimeout(() => { $("status").textContent = "Waking the free server (this can take about a minute after it sleeps)…"; }, 2500);
+  const slow = setTimeout(() => say("Waking the server. After a quiet spell this takes about a minute."), 2500);
   try {
-    const h = await (await fetch("/healthz")).json();
+    await fetch("/healthz");
     clearTimeout(slow);
     const c = await (await fetch("/api/config")).json();
-    if (!$("thr").value) $("thr").value = c.threshold;
-    $("photo").disabled = !c.photo_enabled;
-    await fetch("/api/warm", { method: "POST" });
-    $("status").textContent = `Server awake (${((Date.now()-t0)/1000).toFixed(1)} s). Model: ${c.backend}. The first forecast after waking can take up to a minute.`;
-  } catch (e) { clearTimeout(slow); $("status").textContent = "Server not reachable yet. Try again in a minute."; }
+    if (!store.get("sw-thr")) $("thr").value = c.threshold;
+    if (!c.photo_enabled) { $("meterbtn").hidden = true; $("billbtn").hidden = true; }
+    fetch("/api/warm", { method: "POST" });
+    say("");
+  } catch (e) { clearTimeout(slow); say("The server isn't answering yet. Try again in a minute."); }
 }
 wake();
 
+async function upload(path, file) {
+  const fd = new FormData(); fd.append("file", file);
+  const r = await fetch(path, { method: "POST", body: fd });
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.detail || "upload failed");
+  return j;
+}
+
 $("photo").addEventListener("change", async (ev) => {
   const file = ev.target.files[0]; if (!file) return;
-  $("status").textContent = "Reading the meter photo…";
-  const fd = new FormData(); fd.append("file", file);
+  say("Reading the meter photo…");
   try {
-    const r = await fetch("/api/photo", { method: "POST", body: fd });
-    const j = await r.json();
-    if (!r.ok) throw new Error(j.detail || r.statusText);
-    if (j.reading_kwh == null) { $("status").textContent = `Couldn't read it: ${j.unreadable_reason}. Please type the number.`; return; }
+    const j = await upload("/api/photo", file);
+    if (j.reading_kwh == null) { say("Couldn't read that photo (" + (j.unreadable_reason || "unclear") + "). Type the reading instead."); return; }
     $("now").value = j.reading_kwh;
-    $("status").textContent = `Read ${j.reading_kwh} kWh (${j.display_label || "no label"}, confidence ${Math.round(j.confidence*100)}%). Check it matches the meter, then press Forecast.`;
-  } catch (e) { $("status").textContent = "Photo reading failed: " + e.message; }
+    say(`Read ${j.reading_kwh} kWh from the photo. Check it against the meter, then press Check this month.`);
+  } catch (e) { say("Photo reading failed: " + e.message + ". Type the reading instead."); }
 });
+
+$("billphoto").addEventListener("change", async (ev) => {
+  const file = ev.target.files[0]; if (!file) return;
+  say("Reading the bill photo. This takes up to two minutes…");
+  try {
+    const j = await upload("/api/bill-photo", file);
+    if (j.current_units != null) $("prev").value = j.current_units;
+    const h = (j.history || []).slice(-12);
+    if (h.length) {
+      const thr = +$("thr").value || 200;
+      $("hist").innerHTML = '<p class="muted">Usage history read from the bill. Check it against the paper before relying on it.</p>' +
+        '<table class="hist">' + h.map(x => `<tr><td>${esc(x.month)}</td><td class="${x.units > thr ? "over" : ""}">${esc(x.units)}</td></tr>`).join("") + "</table>";
+    }
+    say(j.current_units != null ? `Filled last bill's units (${j.current_units}). Check them against the bill.` : "Read the history, but not last month's units.");
+  } catch (e) { say("Bill reading failed: " + e.message); }
+});
+
+function draw(f, thr) {
+  const max = Math.max(300, Math.ceil((f.p90 * 1.1) / 50) * 50);
+  const pct = (v) => Math.max(0, Math.min(100, v / max * 100)) + "%";
+  $("tickmax").textContent = max;
+  $("limitline").style.left = pct(thr); $("limitlabel").textContent = thr;
+  $("band").style.left = pct(f.p10); $("band").style.width = `calc(${pct(f.p90)} - ${pct(f.p10)})`;
+  $("mid").style.left = pct(f.p50);
+  $("p50").textContent = Math.round(f.p50); $("p50").classList.remove("empty");
+  $("caption").textContent = `Likely total this billing month. 8 in 10 months like this end between ${Math.round(f.p10)} and ${Math.round(f.p90)}.`;
+}
+
+const VERDICT = { safe: "On track to stay under", watch: "Close to the limit", unsure: "Too early to tell",
+                  act: "On course to go over", already_over: "Already over the limit this month" };
 
 $("f").addEventListener("submit", async (ev) => {
   ev.preventDefault();
-  for (const k of ["start","sr","thr","prev"]) store.set("sw-"+k, $(k).value);
+  if (!$("f").checkValidity()) { say("Fill in the last bill's reading date and reading, and today's reading."); return; }
+  for (const k of ["start","sr","prev","kw","thr","days"]) store.set("sw-"+k, $(k).value);
   const body = { cycle_start: $("start").value, start_reading: +$("sr").value,
                  readings: [{ date: $("day").value, reading_kwh: +$("now").value }],
-                 threshold: +$("thr").value || null, prev_cycle_units: $("prev").value ? +$("prev").value : null };
-  $("status").textContent = "Forecasting…";
+                 threshold: +$("thr").value || 200, cycle_days: +$("days").value || 30,
+                 sanctioned_kw: +$("kw").value || 2 };
+  if ($("prev").value) body.prev_cycle_units = +$("prev").value;
+  $("go").disabled = true; say("Checking. The first check after the server starts takes up to a minute while the model loads; later ones take a few seconds.");
   try {
     const r = await fetch("/api/forecast", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const j = await r.json();
-    if (!r.ok) throw new Error(typeof j.detail === "string" ? j.detail : JSON.stringify(j.detail));
-    show(j); $("status").textContent = "";
-  } catch (e) { $("status").textContent = "Couldn't forecast: " + e.message; }
+    if (!r.ok) throw new Error(j.detail || "forecast failed");
+    const f = j.forecast, d = j.decision;
+    draw(f, body.threshold);
+    $("result").hidden = false;
+    $("verdict").textContent = VERDICT[d.verdict] || d.verdict;
+    $("verdict").className = "verdict v-" + d.verdict;
+    $("msg").textContent = d.message;
+    $("ur").textContent = d.message_ur || "";
+    const m = j.money || {};
+    if (m.cliff) {
+      $("money").hidden = false;
+      $("money").innerHTML = `<strong>Going over ${body.threshold} would cost about ${rs(m.cliff.total_extra)} more</strong>` +
+        `<br><span class="muted">${rs(m.cliff.this_month_extra)} on this bill and ${rs(m.cliff.next_months_extra)} over the next ${m.cliff.penalty_months} bills at the unprotected rate. Estimate: ${esc(m.cliff.assumes)}.</span>`;
+    } else if (m.estimate_at_p50) {
+      $("money").hidden = false;
+      $("money").innerHTML = `Estimated bill at ${Math.round(f.p50)} units: <strong>${rs(m.estimate_at_p50.total)}</strong> <span class="muted">(${esc(m.estimate_at_p50.status)})</span>`;
+    } else { $("money").hidden = true; }
+    $("assume").innerHTML = (d.assumptions || []).map(a => `<li>${esc(a)}</li>`).join("") + `<li>Forecast model: ${esc(f.backend)}.</li>`;
+    say("");
+  } catch (e) { say("Couldn't check: " + e.message); }
+  finally { $("go").disabled = false; }
 });
-
-function show(j) {
-  const f = j.forecast, d = j.decision;
-  $("out").hidden = false;
-  $("verdict").textContent = d.verdict.replace("_"," "); $("verdict").className = "verdict v-" + d.verdict;
-  $("msg").textContent = d.message; $("ur").textContent = d.message_ur;
-  const lo = Math.min(f.p10, f.threshold, d.units_so_far) * 0.9, hi = Math.max(f.p90, f.threshold) * 1.1;
-  const x = (v) => (100 * (v - lo) / (hi - lo)).toFixed(2) + "%";
-  $("band").style.left = x(f.p10); $("band").style.width = (100 * (f.p90 - f.p10) / (hi - lo)).toFixed(2) + "%";
-  $("mid").style.left = x(f.p50); $("thrm").style.left = x(f.threshold);
-  $("lo").textContent = Math.round(lo); $("hi").textContent = Math.round(hi);
-  $("pc").textContent = Math.round(f.p_cross * 100) + "%";
-  $("assume").innerHTML = ""; for (const a of d.assumptions) { const li = document.createElement("li"); li.textContent = a; $("assume").appendChild(li); }
-}
 </script>
 </body>
 </html>
