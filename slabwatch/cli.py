@@ -203,6 +203,16 @@ def cmd_db_init(a: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_protocol(a: argparse.Namespace) -> int:
+    from slabwatch.protocol import run
+
+    r = run(final=a.final, weather=a.weather)
+    _print({k: r[k] for k in ("chosen", "dev_pinball", "dev_scores") if k in r} |
+           ({"test": {k: (v["calibrated"]["overall"] if "calibrated" in v else v["overall"])
+                      for k, v in r["test_scores"].items()}} if a.final else {}))
+    return 0
+
+
 def cmd_fetch_bill(a: argparse.Namespace) -> int:
     from slabwatch import bill
 
@@ -286,6 +296,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("db-init", help="create tables (+hypertables, +pgvector if available)").set_defaults(fn=cmd_db_init)
 
+    pr = sub.add_parser("protocol", help="pre-registered dev/test evaluation (docs/PROTOCOL.md)")
+    pr.add_argument("--final", action="store_true", help="also score the test homes (once)")
+    pr.add_argument("--weather", default="clim", choices=["actual", "clim"])
+    pr.set_defaults(fn=cmd_protocol)
     fb = sub.add_parser("fetch-bill", help="PITC duplicate bill (form post from this machine), or parse a saved text / photo)")
     fb.add_argument("--ref", help="14-digit reference number"); fb.add_argument("--disco", default="lesco")
     fb.add_argument("--text-file"); fb.add_argument("--photo"); fb.add_argument("--no-gemma", action="store_true")
