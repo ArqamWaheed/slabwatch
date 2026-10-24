@@ -1,0 +1,24 @@
+{
+  "_note": "Units columns transcribed by hand from publicly published sample bills (images are NOT in the repo; see source_page). Only the units history is recorded: no names, IDs or addresses.",
+  "01_ke_specimen_jul2025_front.jpg": {
+    "source_page": "https://propakistani.pk/2025/08/04/k-electrics-electricity-bill-gets-new-layout/",
+    "what": "K-Electric specimen bill (dummy customer), Jul 2025, 13-month bar chart",
+    "current_units": 179,
+    "history": {"2024-07": 168, "2024-08": 211, "2024-09": 285, "2024-10": 254, "2024-11": 260, "2024-12": 252,
+                "2025-01": 182, "2025-02": 199, "2025-03": 256, "2025-04": 168, "2025-05": 124, "2025-06": 162, "2025-07": 179}
+  },
+  "03_gepco_redacted_apr2026.png": {
+    "source_page": "https://gepcobill.com.pk/news/how-to-read-gepco-bill-charges-taxes-dates",
+    "what": "GEPCO bill, Apr 2026, identifiers redacted by the publisher",
+    "current_units": 184,
+    "history": {"2025-04": 322, "2025-05": 443, "2025-06": 486, "2025-07": 491, "2025-08": 407, "2025-09": 413,
+                "2025-10": 308, "2025-11": 210, "2025-12": 144, "2026-01": 112, "2026-02": 125, "2026-03": 151}
+  },
+  "04_lesco_oldformat_blurred_ary_2024.jpg": {
+    "source_page": "https://arynews.tv/heres-how-to-download-lesco-bill-for-august-2024-online/",
+    "what": "LESCO bill (cropped), identifiers blurred by the publisher; rows from JAN-24 are cut off",
+    "current_units": 56,
+    "history": {"2023-03": 148, "2023-04": 218, "2023-05": 288, "2023-06": 175, "2023-07": 289, "2023-08": 342,
+                "2023-09": 214, "2023-10": 133, "2023-11": 59, "2023-12": 57}
+  }
+}

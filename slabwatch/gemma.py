@@ -62,8 +62,11 @@ Rules:
 BILL_PROMPT = """Below is the text of a Pakistani electricity bill (PITC duplicate bill). Return ONLY JSON:
 {"reference_no": string or null, "current_units": number or null,
  "history": [{"month": "YYYY-MM", "units": number, "amount_rs": number or null}, ...]}
-Copy numbers exactly as printed in the 12-month history table (MONTH / UNITS / BILL). If a field is
-not present, use null or omit that month. Never invent months or numbers.
+Copy numbers exactly as printed in the usage history: on PITC bills (LESCO, IESCO, GEPCO...) the
+MONTH / UNITS / BILL table (units may carry a status prefix such as "EX"; drop the prefix); on K-Electric
+bills the "13 Month Usage History" bar chart, whose units are printed on each bar under month labels
+(the year labels above the chart say where each year starts). If a month is cut off or unreadable, omit
+it. If a field is not present, use null. Never invent months or numbers.
 
 BILL TEXT:
 """

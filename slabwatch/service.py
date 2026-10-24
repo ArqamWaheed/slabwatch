@@ -50,7 +50,8 @@ def _parse_date(x) -> dt.date:
 
 def forecast_cycle(cycle_start, start_reading: float, readings: list[dict], threshold: float | None = None,
                    cycle_days: int | None = None, meta: dict | None = None, prev_cycle_units: float | None = None,
-                   backend: str | None = None, temps: dict | None = None) -> dict:
+                   backend: str | None = None, temps: dict | None = None, sanctioned_kw: float = 2.0,
+                   fca: float | None = None) -> dict:
     """readings: [{"date": "YYYY-MM-DD", "reading_kwh": float}] (cumulative meter register).
 
     Day k of the cycle ends at cycle_start + k days, so a reading taken on cycle_start + k is day k.
@@ -83,7 +84,26 @@ def forecast_cycle(cycle_start, start_reading: float, readings: list[dict], thre
     f = model(backend).forecast_one(feats, threshold, FEATURES, cycle_days)
     dec = decide(f.p10, f.p50, f.p90, f.p_cross, feats["units_so_far"], d, cycle_days, threshold,
                  s.penalty_months, backend=f.backend)
-    return {"forecast": f.to_dict(), "decision": dec.to_dict(), "features": feats}
+    return {"forecast": f.to_dict(), "decision": dec.to_dict(), "features": feats,
+            "money": money(f.p50, f.p_cross, threshold, prev_cycle_units, s.penalty_months, sanctioned_kw, fca)}
+
+
+def money(p50: float, p_cross: float, threshold: float, prev_cycle_units: float | None, penalty_months: int,
+          sanctioned_kw: float = 2.0, fca: float | None = None) -> dict:
+    """Rupee view of the forecast (estimate; see bill_estimate.py). Only meaningful at the 200-unit rule."""
+    from slabwatch.bill_estimate import FCA_DEFAULT, cliff_cost, estimate
+
+    fca = FCA_DEFAULT if fca is None else fca
+    out = {"estimate_at_p50": None, "cliff": None, "note": "estimate; tariff and assumptions in docs/TARIFF.md"}
+    if threshold != 200:
+        out["note"] = "rupee estimate only covers the 200-unit protected rule"
+        return out
+    status = "protected" if p50 <= 200 else "unprotected"
+    out["estimate_at_p50"] = estimate(p50, status, sanctioned_kw, fca).to_dict()
+    if p_cross >= 0.1:
+        typical = prev_cycle_units if prev_cycle_units else min(p50, 200)
+        out["cliff"] = cliff_cost(min(p50, 199), max(p50, 201), typical, sanctioned_kw, penalty_months, fca)
+    return out
 
 
 def notify(message: str, title: str = "Slabwatch", priority: str = "default") -> int:

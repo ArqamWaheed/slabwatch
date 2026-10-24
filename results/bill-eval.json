@@ -1,0 +1,68 @@
+{
+ "exact": 29,
+ "months": 35,
+ "invented_months": 1,
+ "per_bill": {
+  "01_ke_specimen_jul2025_front.jpg": {
+   "months": 13,
+   "exact": 7,
+   "invented_months": 0,
+   "wrong_or_missing": {
+    "2024-07": [
+     168,
+     158.0
+    ],
+    "2024-09": [
+     285,
+     265.0
+    ],
+    "2025-04": [
+     168,
+     124.0
+    ],
+    "2025-05": [
+     124,
+     162.0
+    ],
+    "2025-06": [
+     162,
+     179.0
+    ],
+    "2025-07": [
+     179,
+     null
+    ]
+   },
+   "current_units": [
+    179,
+    179.0
+   ],
+   "seconds": 13.0,
+   "error": null
+  },
+  "03_gepco_redacted_apr2026.png": {
+   "months": 12,
+   "exact": 12,
+   "invented_months": 0,
+   "wrong_or_missing": {},
+   "current_units": [
+    184,
+    184.0
+   ],
+   "seconds": 13.1,
+   "error": null
+  },
+  "04_lesco_oldformat_blurred_ary_2024.jpg": {
+   "months": 10,
+   "exact": 10,
+   "invented_months": 1,
+   "wrong_or_missing": {},
+   "current_units": [
+    56,
+    56.0
+   ],
+   "seconds": 39.4,
+   "error": null
+  }
+ }
+}

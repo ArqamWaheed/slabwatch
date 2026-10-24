@@ -1,0 +1,96 @@
+{
+ "exact": 22,
+ "months": 35,
+ "invented_months": 1,
+ "per_bill": {
+  "01_ke_specimen_jul2025_front.jpg": {
+   "months": 13,
+   "exact": 0,
+   "invented_months": 0,
+   "wrong_or_missing": {
+    "2024-07": [
+     168,
+     null
+    ],
+    "2024-08": [
+     211,
+     null
+    ],
+    "2024-09": [
+     285,
+     null
+    ],
+    "2024-10": [
+     254,
+     null
+    ],
+    "2024-11": [
+     260,
+     null
+    ],
+    "2024-12": [
+     252,
+     null
+    ],
+    "2025-01": [
+     182,
+     null
+    ],
+    "2025-02": [
+     199,
+     null
+    ],
+    "2025-03": [
+     256,
+     null
+    ],
+    "2025-04": [
+     168,
+     null
+    ],
+    "2025-05": [
+     124,
+     null
+    ],
+    "2025-06": [
+     162,
+     null
+    ],
+    "2025-07": [
+     179,
+     null
+    ]
+   },
+   "current_units": [
+    179,
+    null
+   ],
+   "seconds": 87.6,
+   "error": "no valid history rows"
+  },
+  "03_gepco_redacted_apr2026.png": {
+   "months": 12,
+   "exact": 12,
+   "invented_months": 0,
+   "wrong_or_missing": {},
+   "current_units": [
+    184,
+    184.0
+   ],
+   "seconds": 67.2,
+   "error": null
+  },
+  "04_lesco_oldformat_blurred_ary_2024.jpg": {
+   "months": 10,
+   "exact": 10,
+   "invented_months": 1,
+   "wrong_or_missing": {},
+   "current_units": [
+    56,
+    56.0
+   ],
+   "seconds": 111.2,
+   "error": null
+  }
+ }
+}
