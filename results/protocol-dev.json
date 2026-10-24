@@ -1,5 +1,5 @@
 {
-  "date_utc": "2026-10-24T13:25:29+00:00",
+  "date_utc": "2026-10-24T13:28:05+00:00",
   "weather": "clim",
   "dev_houses": [
     1,
@@ -165,10 +165,10 @@
     }
   },
   "dev_seconds": {
-    "gbm_A": 14.2,
-    "gbm_B": 94.8,
-    "gbm_C": 11.2,
-    "tabpfn_ratio": 21.8,
-    "tabpfn_logratio": 23.5
+    "gbm_A": 17.5,
+    "gbm_B": 72.7,
+    "gbm_C": 11.5,
+    "tabpfn_ratio": 21.6,
+    "tabpfn_logratio": 17.3
   }
 }
