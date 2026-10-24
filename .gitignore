@@ -1,0 +1,25 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# data: PRECON raw/extracted CSVs (~300 MB), caches, personal photos/bills
+data/**
+!data/**/
+!data/**/.gitkeep
+results/bills/
+results/cache/
+
+# keep: slabwatch/assets/train_rows.parquet (derived PRECON rows, CC0, ~130 KB; Render needs it)
+
+# local services
+.temporal.db*
+*.log

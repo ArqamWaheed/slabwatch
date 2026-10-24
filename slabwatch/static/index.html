@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slabwatch</title>
+<style>
+  :root { --paper:#F6F4EF; --ink:#1D2433; --muted:#5B6474; --rule:#D4D0C6; --safe:#2F7D4F; --watch:#B7791F;
+          --act:#C2410C; --band:#9DB4D3; --card:#FFFFFF; }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper:#14171D; --ink:#E8E6E1; --muted:#9AA3B2; --rule:#2C313B; --card:#1C2028; --band:#3E5E8C; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width:560px; margin:0 auto; padding:20px 16px 48px; }
+  h1 { font-size:1.4rem; margin:0 0 4px; } .sub { color:var(--muted); margin:0 0 18px; font-size:.95rem; }
+  .card { background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:16px; margin-bottom:14px; }
+  label { display:block; font-size:.85rem; color:var(--muted); margin:10px 0 4px; }
+  input { width:100%; font:inherit; padding:10px; border:1px solid var(--rule); border-radius:8px; background:transparent; color:inherit; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  button { font:inherit; font-weight:600; padding:11px 14px; border-radius:8px; border:0; background:var(--ink); color:var(--paper); width:100%; margin-top:14px; cursor:pointer; }
+  button.ghost { background:transparent; color:var(--ink); border:1px solid var(--rule); }
+  #status { font-size:.9rem; color:var(--muted); min-height:1.3em; }
+  .verdict { font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-size:.8rem; }
+  .v-safe{color:var(--safe)} .v-watch,.v-unsure{color:var(--watch)} .v-act,.v-already_over{color:var(--act)}
+  .msg { font-size:1.05rem; margin:6px 0; } .ur { color:var(--muted); font-style:italic; }
+  .bar { position:relative; height:34px; margin:18px 0 6px; border-bottom:1px solid var(--rule); }
+  .band { position:absolute; top:8px; height:16px; background:var(--band); border-radius:4px; }
+  .mid { position:absolute; top:4px; width:2px; height:24px; background:var(--ink); }
+  .thr { position:absolute; top:0; width:2px; height:34px; background:var(--act); }
+  .ticks { display:flex; justify-content:space-between; font-size:.8rem; color:var(--muted); }
+  .big { font-size:1.6rem; font-weight:700; } small, .muted { color:var(--muted); font-size:.85rem; }
+  ul { padding-left:18px; margin:6px 0 0; } li { margin:2px 0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Slabwatch</h1>
+  <p class="sub">Will this month's bill go over the protected limit? Enter today's meter reading (or a photo) and see where the cycle will likely end.</p>
+  <p id="status" role="status">Checking the server…</p>
+
+  <form class="card" id="f">
+    <div class="row">
+      <div><label for="start">Cycle started (last bill's reading date)</label><input id="start" type="date" required></div>
+      <div><label for="sr">Reading on that date (kWh)</label><input id="sr" type="number" step="0.1" min="0" required></div>
+    </div>
+    <div class="row">
+      <div><label for="day">Today's date</label><input id="day" type="date" required></div>
+      <div><label for="now">Today's reading (kWh)</label><input id="now" type="number" step="0.1" min="0" required></div>
+    </div>
+    <label for="photo">…or photograph the meter (Gemma reads it; you confirm)</label>
+    <input id="photo" type="file" accept="image/*" capture="environment">
+    <div class="row">
+      <div><label for="thr">Limit (units)</label><input id="thr" type="number" min="1" value="200"></div>
+      <div><label for="prev">Last bill's units (optional)</label><input id="prev" type="number" min="0"></div>
+    </div>
+    <button type="submit">Forecast this cycle</button>
+  </form>
+
+  <section class="card" id="out" hidden>
+    <div class="verdict" id="verdict"></div>
+    <p class="msg" id="msg"></p>
+    <p class="ur" id="ur"></p>
+    <div class="bar" id="bar"><div class="band" id="band"></div><div class="mid" id="mid"></div><div class="thr" id="thrm" title="limit"></div></div>
+    <div class="ticks"><span id="lo"></span><span id="hi"></span></div>
+    <p><span class="big" id="pc"></span> <span class="muted">chance of going over the limit</span></p>
+    <p class="muted">Band = 10th to 90th percentile of the forecast final units; line = middle guess; red = limit.</p>
+    <details><summary class="muted">What this assumed</summary><ul id="assume"></ul></details>
+  </section>
+  <p class="muted">The forecast is in units because you control units; the rupee price per unit changes every month. Nothing here is advice from your DISCO.</p>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+                set(k,v){ try { localStorage.setItem(k,v); } catch(e){} } };
+const today = new Date(Date.now() - new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
+$("day").value = today;
+for (const k of ["start","sr","thr","prev"]) { const v = store.get("sw-"+k); if (v) $(k).value = v; }
+
+async function wake() {
+  const t0 = Date.now();
+  const slow = setTimeout(() => { $("status").textContent = "Waking the free server (this can take about a minute after it sleeps)…"; }, 2500);
+  try {
+    const h = await (await fetch("/healthz")).json();
+    clearTimeout(slow);
+    const c = await (await fetch("/api/config")).json();
+    if (!$("thr").value) $("thr").value = c.threshold;
+    $("photo").disabled = !c.photo_enabled;
+    await fetch("/api/warm", { method: "POST" });
+    $("status").textContent = `Server awake (${((Date.now()-t0)/1000).toFixed(1)} s). Model: ${c.backend}. The first forecast after waking can take up to a minute.`;
+  } catch (e) { clearTimeout(slow); $("status").textContent = "Server not reachable yet. Try again in a minute."; }
+}
+wake();
+
+$("photo").addEventListener("change", async (ev) => {
+  const file = ev.target.files[0]; if (!file) return;
+  $("status").textContent = "Reading the meter photo…";
+  const fd = new FormData(); fd.append("file", file);
+  try {
+    const r = await fetch("/api/photo", { method: "POST", body: fd });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.detail || r.statusText);
+    if (j.reading_kwh == null) { $("status").textContent = `Couldn't read it: ${j.unreadable_reason}. Please type the number.`; return; }
+    $("now").value = j.reading_kwh;
+    $("status").textContent = `Read ${j.reading_kwh} kWh (${j.display_label || "no label"}, confidence ${Math.round(j.confidence*100)}%). Check it matches the meter, then press Forecast.`;
+  } catch (e) { $("status").textContent = "Photo reading failed: " + e.message; }
+});
+
+$("f").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  for (const k of ["start","sr","thr","prev"]) store.set("sw-"+k, $(k).value);
+  const body = { cycle_start: $("start").value, start_reading: +$("sr").value,
+                 readings: [{ date: $("day").value, reading_kwh: +$("now").value }],
+                 threshold: +$("thr").value || null, prev_cycle_units: $("prev").value ? +$("prev").value : null };
+  $("status").textContent = "Forecasting…";
+  try {
+    const r = await fetch("/api/forecast", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const j = await r.json();
+    if (!r.ok) throw new Error(typeof j.detail === "string" ? j.detail : JSON.stringify(j.detail));
+    show(j); $("status").textContent = "";
+  } catch (e) { $("status").textContent = "Couldn't forecast: " + e.message; }
+});
+
+function show(j) {
+  const f = j.forecast, d = j.decision;
+  $("out").hidden = false;
+  $("verdict").textContent = d.verdict.replace("_"," "); $("verdict").className = "verdict v-" + d.verdict;
+  $("msg").textContent = d.message; $("ur").textContent = d.message_ur;
+  const lo = Math.min(f.p10, f.threshold, d.units_so_far) * 0.9, hi = Math.max(f.p90, f.threshold) * 1.1;
+  const x = (v) => (100 * (v - lo) / (hi - lo)).toFixed(2) + "%";
+  $("band").style.left = x(f.p10); $("band").style.width = (100 * (f.p90 - f.p10) / (hi - lo)).toFixed(2) + "%";
+  $("mid").style.left = x(f.p50); $("thrm").style.left = x(f.threshold);
+  $("lo").textContent = Math.round(lo); $("hi").textContent = Math.round(hi);
+  $("pc").textContent = Math.round(f.p_cross * 100) + "%";
+  $("assume").innerHTML = ""; for (const a of d.assumptions) { const li = document.createElement("li"); li.textContent = a; $("assume").appendChild(li); }
+}
+</script>
+</body>
+</html>

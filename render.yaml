@@ -1,0 +1,40 @@
+# Render Blueprint: one free web service. https://render.com/docs/blueprint-spec
+# Free plan: 0.1 CPU / 512 MB, spins down after 15 min idle (~1 min wake). The page says so.
+services:
+  - type: web
+    name: slabwatch
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn slabwatch.web:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: FORECAST_BACKEND
+        value: tabpfn_api          # falls back to gbm if you set this to gbm (no key needed)
+      - key: TABPFN_TOKEN
+        sync: false
+      - key: GEMMA_PROVIDER
+        value: google
+      - key: GEMMA_MODEL
+        value: gemma-3-27b-it      # TO VERIFY against your AI Studio model list
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false                # Tiger Cloud connection string (optional for the page)
+      - key: NTFY_TOPIC
+        sync: false
+      - key: TEMPORAL_ADDRESS
+        sync: false                # leave empty on Render unless you run Temporal Cloud
+      - key: SLAB_THRESHOLD
+        value: "200"
+      - key: PENALTY_MONTHS
+        value: "6"
+      - key: CYCLE_DAYS
+        value: "30"
+      - key: LAT
+        value: "31.55"
+      - key: LON
+        value: "74.34"

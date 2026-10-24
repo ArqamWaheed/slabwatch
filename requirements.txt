@@ -1,0 +1,13 @@
+# Render web service (free plan, 512 MB). NO torch / local tabpfn here: TabPFN runs through
+# tabpfn-client (Prior Labs API). Versions are the ones tested on 2026-10-24.
+numpy==2.4.6
+pandas==2.3.3
+pyarrow==25.0.1
+scikit-learn==1.9.0
+fastapi==0.162.0
+uvicorn==0.54.0
+python-multipart==0.0.32
+pydantic==2.13.4
+tabpfn-client==0.6.1
+psycopg[binary]==3.3.6
+temporalio==1.34.0
