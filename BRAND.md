@@ -35,8 +35,18 @@ Uppercase labels: mono, 0.78rem, tracking 0.08em.
 
 ## Space, shape, motion
 4px base scale (`--s-1` 4px to `--s-8` 72px). Radius 4 / 6 / 10px. Touch targets at least 44px. Single column
-34rem; two columns from 960px (readout left, form right, 68rem). Motion only where a value changes: the forecast
-band slides with `cubic-bezier(.23, 1, .32, 1)` over 450ms, off under reduced motion. Nothing animates on load.
+34rem; two columns from 960px (readout left, form right, 68rem). 
+Motion (tokens `--ease-*`, `--dur-*`, `--stagger`):
+- **Boot screen**: the page opens on a small meter that runs a self-test, like a real meter at power-on. All
+  segments light (`888`), flicker out to `---`, and the needle sweeps past the red limit line and settles under it.
+  It lifts away as a shutter (slides up, red line on its trailing edge). Full test once per tab, about 1.1 s; it
+  never waits on the server (the status line covers a cold Render start). Capped at 2.4 s.
+- **Page transition**: links to another page drop the same shutter from below, then navigate; the next page opens
+  already covered and lifts it. No browser flash, no loading bar. In-page anchors scroll smoothly instead.
+- **On the page**: content rises in with a 70ms stagger after the shutter lifts; "How it decides" rises in on scroll.
+  A new forecast flickers the LCD like a refresh and counts the digits up; the band and needle slide (450ms);
+  the red limit line pulses when the verdict is over. The check button scans an LCD segment while it waits.
+- **Reduced motion**: no travel, no count-up, no pulse. The boot screen shows a still meter and fades.
 
 ## Voice
 Calm and exact. Say what was assumed. Units first, rupees as an estimate. No hype, no exclamation marks. Roman Urdu

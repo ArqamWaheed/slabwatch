@@ -59,10 +59,18 @@
   --lcd-inset: inset 0 2px 0 rgba(0, 0, 0, .18), inset 0 -1px 0 rgba(255, 255, 255, .35);
   --panel-edge: 0 1px 0 rgba(255, 255, 255, .6) inset, 0 1px 2px rgba(20, 32, 26, .08);
 
-  /* Motion: short, ease-out, never on page load. */
+  /* Motion: ease-out for things arriving, ease-in-out for the shutter that crosses the screen.
+     The boot screen runs a meter self-test once per tab; page changes use the shutter, never a plain bar. */
   --ease-out: cubic-bezier(.23, 1, .32, 1);
+  --ease-in-out: cubic-bezier(.77, 0, .175, 1);
   --dur-fast: 140ms;
   --dur: 450ms;
+  --dur-slow: 700ms;      /* content rising in, digits counting */
+  --dur-shutter: 520ms;   /* boot screen leaving, cover arriving */
+  --stagger: 70ms;        /* gap between items rising in */
+  --rise: 14px;           /* how far items travel as they rise in */
+  --boot-w: 15rem;        /* the boot-screen meter */
+  --fs-boot: 3rem;        /* its digits */
 }
 
 @media (prefers-color-scheme: dark) {
