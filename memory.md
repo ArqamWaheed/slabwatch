@@ -33,9 +33,9 @@ sklearn GBM. Open-Meteo. PRECON via CKAN. Temporal python SDK. Browserbase (tari
 ## Still open
 - Render: keys are Render Secret Files (/etc/secrets/<NAME>, read by config.env fallback); FORECAST_BACKEND=blend env var.
   Live-checked 2026-10-25: blend forecast, Gemma meter read + refusal, bill photo (results/render-check-keys-20261025.json).
-- DEV post v2 (outcome-led, 'Why not just divide?' case studies from results/session-outcomes.json, news citations,
-  FCA watcher described as a separate job; title mixes Rs 32,000 hook + day-14 outcome; live-keys demo table; no checklist
-  comment, no personal story by user's choice): draft saved on dev.to, unpublished; source `../articlewriting/hacktoberfest-week3-slabwatch.md`.
+- DEV post PUBLISHED 2026-10-25 19:56 UTC (before the 06:59 UTC Oct 26 deadline), with demo video
+  https://www.youtube.com/watch?v=12xSWbfkhYw : https://dev.to/arqamwd/one-unit-over-200-can-cost-a-pakistani-home-rs-32000-by-day-14-my-forecaster-had-warned-31-of-the-20jk
+  Source `../articlewriting/hacktoberfest-week3-slabwatch.md`. Commits after the deadline must be listed in README.
   Images in docs/images (scripts/post_images.py from results/ + 2 Google Flow illustrations).
 - App FCA is the setting FCA_DEFAULT (bill_estimate.py); tariff-watch is a laptop job, not read by the app (post says so).
 - `gemma.check_against_previous()` is not called anywhere (post says so; wire into /api/reading after deadline).
