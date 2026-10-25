@@ -1,0 +1,263 @@
+{
+ "source": "results/session-aggregate.json",
+ "by_cut": {
+  "5": {
+   "cycles": 65,
+   "crossed": 38,
+   "alerts": 36,
+   "alerts_real": 27,
+   "arithmetic_over": 38,
+   "arithmetic_over_real": 27,
+   "model_only_right": 5,
+   "arithmetic_only_right": 3
+  },
+  "7": {
+   "cycles": 65,
+   "crossed": 38,
+   "alerts": 32,
+   "alerts_real": 27,
+   "arithmetic_over": 38,
+   "arithmetic_over_real": 29,
+   "model_only_right": 4,
+   "arithmetic_only_right": 2
+  },
+  "10": {
+   "cycles": 65,
+   "crossed": 38,
+   "alerts": 32,
+   "alerts_real": 28,
+   "arithmetic_over": 35,
+   "arithmetic_over_real": 28,
+   "model_only_right": 4,
+   "arithmetic_only_right": 1
+  },
+  "14": {
+   "cycles": 65,
+   "crossed": 38,
+   "alerts": 32,
+   "alerts_real": 30,
+   "arithmetic_over": 36,
+   "arithmetic_over_real": 29,
+   "model_only_right": 8,
+   "arithmetic_only_right": 2
+  },
+  "18": {
+   "cycles": 65,
+   "crossed": 38,
+   "alerts": 36,
+   "alerts_real": 33,
+   "arithmetic_over": 36,
+   "arithmetic_over_real": 31,
+   "model_only_right": 5,
+   "arithmetic_only_right": 1
+  },
+  "21": {
+   "cycles": 65,
+   "crossed": 38,
+   "alerts": 36,
+   "alerts_real": 33,
+   "arithmetic_over": 37,
+   "arithmetic_over_real": 33,
+   "model_only_right": 4,
+   "arithmetic_only_right": 3
+  },
+  "25": {
+   "cycles": 65,
+   "crossed": 38,
+   "alerts": 36,
+   "alerts_real": 35,
+   "arithmetic_over": 36,
+   "arithmetic_over_real": 35,
+   "model_only_right": 3,
+   "arithmetic_only_right": 3
+  }
+ },
+ "warned": {
+  "crossed_cycles": 38,
+  "warned_by_day_10": 28,
+  "warned_by_day_14": 31,
+  "never_warned": 1
+ },
+ "day14_disagreements": [
+  {
+   "house": 2,
+   "cycle_start": "2018-10-29",
+   "cut": 14,
+   "final": 176.1,
+   "crossed": false,
+   "naive": 202.0,
+   "p50": 187.9,
+   "p10": 169.1,
+   "p90": 211.1,
+   "p_cross": 0.204,
+   "verdict": "watch"
+  },
+  {
+   "house": 14,
+   "cycle_start": "2018-09-20",
+   "cut": 14,
+   "final": 204.3,
+   "crossed": true,
+   "naive": 194.4,
+   "p50": 210.2,
+   "p10": 176.7,
+   "p90": 258.7,
+   "p_cross": 0.613,
+   "verdict": "act"
+  },
+  {
+   "house": 14,
+   "cycle_start": "2018-10-05",
+   "cut": 14,
+   "final": 191.6,
+   "crossed": false,
+   "naive": 213.4,
+   "p50": 195.9,
+   "p10": 180.9,
+   "p90": 206.3,
+   "p_cross": 0.337,
+   "verdict": "watch"
+  },
+  {
+   "house": 14,
+   "cycle_start": "2019-04-03",
+   "cut": 14,
+   "final": 203.4,
+   "crossed": true,
+   "naive": 199.7,
+   "p50": 221.1,
+   "p10": 195.5,
+   "p90": 290.5,
+   "p_cross": 0.838,
+   "verdict": "act"
+  },
+  {
+   "house": 22,
+   "cycle_start": "2018-10-14",
+   "cut": 14,
+   "final": 189.0,
+   "crossed": false,
+   "naive": 205.5,
+   "p50": 191.6,
+   "p10": 179.2,
+   "p90": 220.9,
+   "p_cross": 0.28,
+   "verdict": "watch"
+  },
+  {
+   "house": 22,
+   "cycle_start": "2018-12-28",
+   "cut": 14,
+   "final": 197.1,
+   "crossed": false,
+   "naive": 204.9,
+   "p50": 199.8,
+   "p10": 182.8,
+   "p90": 217.8,
+   "p_cross": 0.495,
+   "verdict": "watch"
+  },
+  {
+   "house": 22,
+   "cycle_start": "2019-02-26",
+   "cut": 14,
+   "final": 176.4,
+   "crossed": false,
+   "naive": 200.3,
+   "p50": 194.1,
+   "p10": 172.5,
+   "p90": 217.5,
+   "p_cross": 0.331,
+   "verdict": "watch"
+  },
+  {
+   "house": 24,
+   "cycle_start": "2019-03-30",
+   "cut": 14,
+   "final": 224.2,
+   "crossed": true,
+   "naive": 196.7,
+   "p50": 281.8,
+   "p10": 194.2,
+   "p90": 626.6,
+   "p_cross": 0.863,
+   "verdict": "act"
+  },
+  {
+   "house": 36,
+   "cycle_start": "2018-11-13",
+   "cut": 14,
+   "final": 205.9,
+   "crossed": true,
+   "naive": 202.5,
+   "p50": 197.4,
+   "p10": 183.4,
+   "p90": 217.2,
+   "p_cross": 0.398,
+   "verdict": "watch"
+  },
+  {
+   "house": 36,
+   "cycle_start": "2018-12-28",
+   "cut": 14,
+   "final": 207.4,
+   "crossed": true,
+   "naive": 200.4,
+   "p50": 196.8,
+   "p10": 184.7,
+   "p90": 213.7,
+   "p_cross": 0.355,
+   "verdict": "watch"
+  }
+ ],
+ "case_features_day14": [
+  {
+   "house": 24,
+   "cycle_start": "2019-03-30",
+   "cut": 14,
+   "units_so_far": 91.81,
+   "rate_so_far": 6.56,
+   "rate_last_3_days": 6.38,
+   "rate_last_7_days": 6.34,
+   "mean_temp_so_far": 27.48,
+   "mean_temp_remaining_clim": 27.51,
+   "mean_temp_remaining": 27.13,
+   "final_units": 224.22,
+   "naive_units": 196.73,
+   "n_acs": 4.0,
+   "people": 9.0
+  },
+  {
+   "house": 14,
+   "cycle_start": "2018-10-05",
+   "cut": 14,
+   "units_so_far": 99.59,
+   "rate_so_far": 7.11,
+   "rate_last_3_days": 6.58,
+   "rate_last_7_days": 6.95,
+   "mean_temp_so_far": 24.61,
+   "mean_temp_remaining_clim": 22.92,
+   "mean_temp_remaining": 22.57,
+   "final_units": 191.65,
+   "naive_units": 213.4,
+   "n_acs": 2.0,
+   "people": 5.0
+  },
+  {
+   "house": 36,
+   "cycle_start": "2018-11-13",
+   "cut": 14,
+   "units_so_far": 94.49,
+   "rate_so_far": 6.75,
+   "rate_last_3_days": 7.4,
+   "rate_last_7_days": 7.05,
+   "mean_temp_so_far": 18.31,
+   "mean_temp_remaining_clim": 16.12,
+   "mean_temp_remaining": 15.96,
+   "final_units": 205.85,
+   "naive_units": 202.48,
+   "n_acs": 5.0,
+   "people": 3.0
+  }
+ ]
+}

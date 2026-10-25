@@ -65,7 +65,7 @@ def before_after(before_src):
     d = ImageDraw.Draw(img)
     left = fit(Image.open(before_src), 780, 700)
     img.paste(left, (20, 180))
-    shot = Image.open(OUT / "app-live.png").convert("RGB")
+    shot = Image.open(OUT / "app-live-col.png").convert("RGB")
     shot.thumbnail((760, 700), Image.LANCZOS)
     panel = Image.new("RGB", (780, 700), "#121815")
     panel.paste(shot, ((780 - shot.width) // 2, (700 - shot.height) // 2))
@@ -136,18 +136,19 @@ def plate_system():
                                                    " you're running at 7.4.\"", "+ what it assumed"])
     box(d, (48, 680, 380, 900), "Temporal", ["one workflow per cycle", "reading = signal", "alert on escalation"])
     box(d, (48, 410, 380, 600), "Open-Meteo", ["forecast temps", "fallback: 2008-2017", "climatology (shipped)"])
-    box(d, (450, 410, 800, 600), "Tiger + Browserbase", ["FCA news, quote-", "checked; hybrid RRF", "search (rupees only)"])
+    box(d, (450, 410, 800, 600), "Tiger + Browserbase", ["separate job: FCA", "news, quote-checked,", "hybrid RRF search"],
+        fill=CASING, edge=MUTED)
     arrow(d, (380, 250), (450, 250), label="image")
     arrow(d, (800, 250), (870, 250), label="kWh")
     arrow(d, (380, 418), (868, 336), label="temps")
-    arrow(d, (625, 600), (625, 680), label="FCA Rs/unit")
+    arrow(d, (625, 600), (625, 680), dashed=True, label="FCA: checked by hand", color=MUTED)
     arrow(d, (1055, 330), (1055, 410), label="features")
     arrow(d, (1240, 505), (1300, 505))
     arrow(d, (1430, 600), (1430, 680))
     arrow(d, (1300, 790), (1040, 790), label="verdict")
     arrow(d, (450, 790), (380, 790), dashed=True, label="ntfy")
     d.rectangle((48, 940, 1560, 942), fill=RULE)
-    d.text((48, 952), "Every CODE box can overrule the model before it. Runs on Render's free plan.",
+    d.text((48, 952), "Every CODE box can overrule the model before it. Dashed: not wired into the app yet.",
            font=font(24), fill=INK)
     img.save(OUT / "plate-system.png")
 
@@ -219,6 +220,49 @@ def plate_sides():
     fig.savefig(OUT / "plate-sides.png")
 
 
+def plate_cases():
+    """Three day-14 disagreements from results/session-outcomes.json: real cumulative units vs the straight line."""
+    import datetime as dt
+
+    import pandas as pd
+    plt = _mpl()
+    o = load("results/session-outcomes.json")
+    rows = {(r["house"], r["cycle_start"]): r for r in o["day14_disagreements"]}
+    daily = pd.read_parquet("data/precon/daily.parquet")
+    picks = [((24, "2019-03-30"), "April: the AC season starts"), ((14, "2018-10-05"), "October: it cools down"),
+             ((36, "2018-11-13"), "November: arithmetic wins")]
+    fig, axes = plt.subplots(1, 3, figsize=(18, 7.2), dpi=100, sharey=True)
+    for ax, (key, title) in zip(axes, picks):
+        r = rows[key]
+        start = dt.date.fromisoformat(key[1])
+        s = daily[daily.house == key[0]].set_index("date")["kwh"]
+        s.index = pd.to_datetime(s.index).date
+        cum, tot = [0.0], 0.0
+        for i in range(30):
+            tot += float(s.get(start + dt.timedelta(days=i), 0.0))
+            cum.append(tot)
+        ax.plot(range(15), cum[:15], color=INK, lw=3)
+        ax.plot(range(14, 31), cum[14:], color=INK, lw=3, ls=":", label="what actually happened")
+        ax.plot([14, 30], [cum[14], r["naive"]], color=MUTED, lw=2.5, ls="--", label="arithmetic from day 14")
+        ax.vlines(30.6, r["p10"], min(r["p90"], 300), color=BAND, lw=10, alpha=0.6, label="model P10-P90 at day 30")
+        ax.plot([30.6], [r["p50"] if r["p50"] < 300 else 300], marker="o", color=INK)
+        ax.axhline(200, color=LIMIT, lw=2)
+        ax.axvline(14, color=RULE, lw=1)
+        ok_m = (r["p_cross"] >= 0.5) == r["crossed"]
+        ax.set_title(f"House {key[0]}, from {key[1]}\n{title}", loc="left", fontsize=17, fontweight="bold", color=INK)
+        ax.text(1, 285, f"arithmetic: {r['naive']:.0f}\nmodel: {r['p_cross']:.0%} over ({r['verdict']})\nfinal: {r['final']:.0f}",
+                fontsize=14, color=INK, va="top")
+        ax.text(29.5, 288, "model right" if ok_m else "model wrong", ha="right", fontsize=15, fontweight="bold",
+                color=SAFE if ok_m else LIMIT)
+        ax.set_xlim(0, 32)
+        ax.set_ylim(0, 300)
+        ax.set_xlabel("day of the cycle")
+    axes[0].set_ylabel("units used so far")
+    axes[0].legend(loc="lower right", frameon=False, fontsize=12)
+    fig.tight_layout()
+    fig.savefig(OUT / "plate-cases.png")
+
+
 def meters_grid():
     ev = load("results/gemma/meter-eval.json")["per_photo"]
     v1 = load("results/gemma/meter-eval-v1.json")["per_photo"]
@@ -260,5 +304,6 @@ if __name__ == "__main__":
     plate_system()
     plate_replay()
     plate_sides()
+    plate_cases()
     meters_grid()
     print(sorted(p.name for p in OUT.iterdir()))
