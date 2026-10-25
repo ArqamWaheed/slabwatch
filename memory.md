@@ -3,57 +3,40 @@
 
 ## What this is
 Forecast a Pakistani household's end-of-cycle electricity units (P10/P50/P90) before the 200-unit protected cliff.
-TabPFN quantiles of a scale-free ratio -> plain-code verdict + daily budget. Gemma reads meter photos/bills.
+Calibrated GBM+TabPFN blend on a scale-free ratio -> plain-code verdict + daily budget. Gemma reads meter photos/bills.
 DEV Hacktoberfest Week 3. Deadline 2026-10-26 06:59 UTC. Spec: research repo
 `outputs/hackathon-research/hacktoberfest-week3-2026-10/05-PIVOT-slabwatch.md`.
 
 ## Stack
-Python 3.11 venv `.venv`. FastAPI on Render free (render.yaml). tabpfn-client (Render) / tabpfn 9.2 local [local].
-sklearn GBM baseline. Open-Meteo. PRECON via CKAN (RAR; libarchive-c fallback). Temporal python SDK. Browserbase +
-Playwright CDP. SerpApi. Tiger Cloud Postgres (timescaledb + pgvector, RRF). ntfy.sh.
-
-## Status
-- Scaffold done 2026-10-24. 38 tests pass (incl. Temporal time-skipping workflow test).
-- PRECON houses 1-10 downloaded/extracted; features: 201 windows, 1407 rows. Backtest (naive/last_ratio/gbm) in docs/RESULTS.md.
-- Not run yet (no keys): tabpfn_local, tabpfn_api, Gemma, Tiger, Browserbase, SerpApi, ntfy, Render deploy.
-- No git yet (parent agent inits).
+Python 3.11 venv `.venv`. FastAPI on Render free (render.yaml). tabpfn-client (Render) / tabpfn local [local].
+sklearn GBM. Open-Meteo. PRECON via CKAN. Temporal python SDK. Browserbase (tariff news only). Tiger Cloud Postgres
+(timescaledb + pgvector, RRF). ntfy.sh. SerpApi removed (user: doesn't work).
 
 ## Key decisions
-- Target ratio = final / (rate_so_far x 30): PRECON homes 214-1271 units/cycle, users ~200.
-- Days < 0.5 kWh are missing (logger dropouts in houses 2, 3, 10).
-- GBM single-threaded (threadpoolctl): 150 s -> 12 s for the 5-fold backtest.
-- P(cross): 11 quantiles -> piecewise-linear CDF.
-- Alerts only on escalation to act/already_over.
+- Target ratio = final / (rate_so_far x 30). Days < 0.5 kWh = missing.
+- Default FORECAST_BACKEND=blend (assets/calibration.json); TabPFN alone lost the pre-registered test.
+- GBM fit cached by fingerprint (`Forecaster(cache=True)`, only service.model): shipped `assets/gbm-*.pkl.gz` for
+  the train asset rows (`slabwatch export-gbm`; rerun after train_rows or GBM_PARAMS_B change), else data/cache.
+  Blend fits GBM + TabPFN in parallel. Render-path blend cold start ~10 s locally (was ~30 s).
+- PITC fetch = local form post (Browserbase IPs time out). Alerts only on escalation.
+- 41 PRECON homes: 65 test-home cycles end within 200 +/- 40 (memory's old "214-1271" was houses 1-10 only).
 
-## TO VERIFY
-Gemma model id on AI Studio; PITC post-submit layout + captcha; embeddinggemma dim 768; Render 512 MB fit;
-unar on House3/5 CRC; FCA query usefulness.
+## Evidence (docs/EVIDENCE.md is the table; docs/SESSION.md the demo write-up)
+- Protocol test, backtest, Browserbase tariff watch, Tiger hybrid search, Temporal smoke: done.
+- 2026-10-25: Gemma on 17 CC meter photos (eval/meter_truth.json, images in data/demo_meters, git-ignored);
+  v1: 4/4 read, 9/10 refused (guessed on multi-meter). Added "several meters -> refuse"; v2: 3/4 (m04 read 19676 for 1967.6, conf 1.0: red tenths drum), 10/10 refused. Do not retune on these photos.
+- Session replay (scripts/replay_session.py): dev-only model; aggregate + one cycle via /api/forecast.
+- KE specimen via /api/bill-photo: 7/13 months (last months shifted).
+
+## Still open
+Render deploy (needs extension permission or API key) · real consented 14-digit bill ref · real household meter
+photos / live family · the DEV post · Temporal UI screenshot + kill/resume log.
+TO VERIFY: embeddinggemma dim 768; Render 512 MB fit; PITC post-submit layout + captcha; unar on House3/5 CRC.
 
 ## File map
 - `slabwatch/cli.py`: all commands · `config.py` env · `net.py` HTTP
 - `data/precon.py` CKAN+extract+daily · `data/weather.py` Open-Meteo
-- `features.py` rows + leakage-safe `cut_features` · `forecast.py` backends + p_cross · `decide.py` verdicts
-- `evaluate.py` backtest -> docs/RESULTS.md · `service.py` glue · `web.py` + `static/index.html`
-- `gemma.py` · `bill.py` · `tariff.py` · `store.py` + `sql/schema.sql` · `workflows.py` + `worker.py`
-
-## Build log 2026-10-24 (to ~13:00 UTC)
-- Data: 41/42 PRECON houses (one archive member missing), 884 windows, 6188 rows.
-- Backtest (clim weather, GroupKFold by house): naive 11.5% MAPE; gbm 8.2% (P10-P90 cover 77%); tabpfn_api 8.6% (cover 87%, too wide). Honest: TabPFN ~= GBM; GBM params were picked on houses 1-10 (bias toward GBM).
-- TabPFN local 3.5 on CPU too slow (fit 1000 rows 123 s); use tabpfn_api (fit 4000 + predict 1000 in 15 s). Thinking Mode: regression supports output_type=mean only -> not usable for quantiles.
-- Gemma: AI Studio key lists gemma-4-26b-a4b-it / gemma-4-31b-it. Thought parts are skipped; responseMimeType JSON works; retry on 429/503. Synthetic LCD read 4527.3 correctly (19 s).
-- Browserbase: PITC / lesco.gov.pk time out and nepra.org.pk gives a Cloudflare 403 from its IPs. New job: tariff watcher (Browserbase search + session reads news -> Gemma extracts FCA -> code checks the quote is on the page). Found Rs1.11 (Aug 2026 FCA, Oct bills) from Tribune; refused Dawn's Rs1.1086 because Gemma rounded it.
-- SerpApi dropped (user: doesn't work).
-- PITC bill: local form post (works; dummy ref -> "Given Ref/App No is invalid"). Needs the real 14-digit ref.
-- Tiger Cloud: free shared service "slabwatch" (us-east-1), timescaledb 2.31 + pgvector; hypertables readings/forecasts; hybrid RRF search over tariff_docs works (bge-base-en-v1.5 local embeddings).
-- Temporal: CLI 1.9.1 dev server (data/temporal/dev.db, UI :8233) + worker; smoke test nudge->signal->forecast->ntfy alert->timer passed, then cleaned up.
-- Web: /api/forecast with tabpfn_api ~11 s cold.
-- BLOCKED: Render deploy (Chrome extension denied on dashboard.render.com).
-- NEED FROM USER: allow Render in the extension (or a Render API key), 14-digit bill ref + DISCO, meter photos, the family session.
-
-## Build log 2026-10-24 ~13:45 UTC
-- Pre-registered protocol (docs/PROTOCOL.md, commit 383ed2c before test). Test (even homes): blend best (pinball 0.0319, MAPE 8.1%, cover 82.4%); GBM 0.0326/8.2%; TabPFN alone 0.0342/8.7% = loss by the rule. TabPFN best late-cycle (day 25 2.3% vs 3.7%). App default FORECAST_BACKEND=blend (assets/calibration.json).
-- bill_estimate.py on NEPRA SRO 279(I)/2026 tariff (docs/TARIFF.md); cliff 195->205 ~ Rs31.7k over 7 bills (estimate).
-- Bill reading eval on public sample bills (images git-ignored, units-only truth in eval/bill_truth.json): 29/35 months exact.
-- Web page redesigned (meter LCD); /api/bill-photo added; local server: `uvicorn slabwatch.web:app --port 8765`.
-- First forecast after start ~60 s (blend fit). Possible improvement: persist fitted GBM.
-- Still TODO: Render deploy (needs extension permission or API key), real meter photos, family session, write the post.
+- `features.py` rows + leakage-safe `cut_features` · `forecast.py` backends + p_cross + GBM cache · `decide.py`
+- `evaluate.py` backtest · `protocol.py` dev/test · `service.py` glue · `web.py` + `static/index.html`
+- `gemma.py` · `bill.py` · `bill_estimate.py` · `tariff.py` · `store.py` + `sql/schema.sql` · `workflows.py` + `worker.py`
+- `scripts/`: backtest, eval_bills, eval_meters, replay_session

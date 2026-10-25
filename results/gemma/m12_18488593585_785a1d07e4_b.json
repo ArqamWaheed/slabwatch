@@ -1,0 +1,12 @@
+{
+ "expect": "refuse",
+ "truth_kwh": null,
+ "outcome": "refused_ok",
+ "model": {
+  "reading_kwh": null,
+  "display_label": null,
+  "confidence": 1.0,
+  "unreadable_reason": "Multiple meters are present in the photo."
+ },
+ "seconds": 7.4
+}

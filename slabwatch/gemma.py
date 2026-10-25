@@ -57,6 +57,7 @@ Rules:
 - display_label = the code or label shown next to the number (e.g. "kWh", "1.8.0", "MDI"), else null.
 - If the shown screen is not the kWh total, or digits are blurred, cut off, glared, or you are not sure
   of every digit, set reading_kwh to null and say why in unreadable_reason. Do not guess digits.
+- If more than one meter is in the photo, set reading_kwh to null: you cannot know which one is the household's.
 - Include decimals only if the meter shows a decimal point."""
 
 BILL_PROMPT = """Below is the text of a Pakistani electricity bill (PITC duplicate bill). Return ONLY JSON:

@@ -1,0 +1,12 @@
+{
+ "expect": "refuse",
+ "truth_kwh": null,
+ "outcome": "refused_ok",
+ "model": {
+  "reading_kwh": null,
+  "display_label": "KILOWATTHOURS",
+  "confidence": 0.5,
+  "unreadable_reason": "The extreme angle of the photo and glare on the glass cover make it difficult to read the dial digits with absolute certainty."
+ },
+ "seconds": 36.6
+}

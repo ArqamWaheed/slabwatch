@@ -1,0 +1,113 @@
+{
+ "what": "one test-home cycle replayed through /api/forecast; the app looks up Open-Meteo archive temps for this past cycle, so its remaining-days weather is the actual weather (a perfect forecast)",
+ "url": "http://localhost:8765",
+ "house": 36,
+ "cycle_start": "2019-01-12",
+ "final_units": 200.5,
+ "prev_cycle_units": 198.6,
+ "meta": {
+  "n_acs": 5.0,
+  "area_sqft": 5989.51,
+  "people": 3.0
+ },
+ "steps": [
+  {
+   "day": 3,
+   "reading": 10021.3,
+   "used_so_far": 21.3,
+   "p10": 183.5,
+   "p50": 209.3,
+   "p90": 273.8,
+   "p_cross": 0.643,
+   "naive": 213.0,
+   "verdict": "act",
+   "message": "You've used 21.3 units in 3 days. To stay under 200 you have 6.6 units/day for 27 days; you're running at 7.1. Chance of going over: about 64%. Likely finish: 183.5-273.8 units (middle guess 209.3).",
+   "backend": "blend",
+   "seconds": 41.2
+  },
+  {
+   "day": 7,
+   "reading": 10050.3,
+   "used_so_far": 50.3,
+   "p10": 191.4,
+   "p50": 210.7,
+   "p90": 256.0,
+   "p_cross": 0.739,
+   "naive": 215.6,
+   "verdict": "act",
+   "message": "You've used 50.3 units in 7 days. To stay under 200 you have 6.5 units/day for 23 days; you're running at 7.2. Chance of going over: about 74%. Likely finish: 191.4-256 units (middle guess 210.7).",
+   "backend": "blend",
+   "seconds": 2.7
+  },
+  {
+   "day": 10,
+   "reading": 10073.3,
+   "used_so_far": 73.3,
+   "p10": 199.7,
+   "p50": 216.9,
+   "p90": 251.6,
+   "p_cross": 0.894,
+   "naive": 219.9,
+   "verdict": "act",
+   "message": "You've used 73.3 units in 10 days. To stay under 200 you have 6.3 units/day for 20 days; you're running at 7.3. Chance of going over: about 89%. Likely finish: 199.7-251.6 units (middle guess 216.9).",
+   "backend": "blend",
+   "seconds": 1.6
+  },
+  {
+   "day": 14,
+   "reading": 10099.7,
+   "used_so_far": 99.7,
+   "p10": 198.5,
+   "p50": 210.8,
+   "p90": 230.8,
+   "p_cross": 0.854,
+   "naive": 213.6,
+   "verdict": "act",
+   "message": "You've used 99.7 units in 14 days. To stay under 200 you have 6.3 units/day for 16 days; you're running at 7.1. Chance of going over: about 85%. Likely finish: 198.5-230.8 units (middle guess 210.8).",
+   "backend": "blend",
+   "seconds": 1.6
+  },
+  {
+   "day": 18,
+   "reading": 10125.6,
+   "used_so_far": 125.6,
+   "p10": 196.1,
+   "p50": 205.4,
+   "p90": 220.5,
+   "p_cross": 0.763,
+   "naive": 209.3,
+   "verdict": "act",
+   "message": "You've used 125.6 units in 18 days. To stay under 200 you have 6.2 units/day for 12 days; you're running at 7. Chance of going over: about 76%. Likely finish: 196.1-220.5 units (middle guess 205.4).",
+   "backend": "blend",
+   "seconds": 1.6
+  },
+  {
+   "day": 21,
+   "reading": 10143.0,
+   "used_so_far": 143.0,
+   "p10": 193.4,
+   "p50": 199.7,
+   "p90": 208.9,
+   "p_cross": 0.483,
+   "naive": 204.3,
+   "verdict": "watch",
+   "message": "Probably fine, but close: 143 units in 21 days. Staying under 200 means about 6.3 units/day for the last 9 days (you're at 6.8). Likely finish: 193.4-208.9 units (middle guess 199.7).",
+   "backend": "blend",
+   "seconds": 7.4
+  },
+  {
+   "day": 25,
+   "reading": 10168.7,
+   "used_so_far": 168.7,
+   "p10": 195.3,
+   "p50": 199.2,
+   "p90": 204.6,
+   "p_cross": 0.438,
+   "naive": 202.4,
+   "verdict": "watch",
+   "message": "Probably fine, but close: 168.7 units in 25 days. Staying under 200 means about 6.3 units/day for the last 5 days (you're at 6.7). Likely finish: 195.3-204.6 units (middle guess 199.2).",
+   "backend": "blend",
+   "seconds": 2.8
+  }
+ ]
+}

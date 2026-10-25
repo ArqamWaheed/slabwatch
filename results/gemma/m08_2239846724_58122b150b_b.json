@@ -1,0 +1,12 @@
+{
+ "expect": "refuse",
+ "truth_kwh": null,
+ "outcome": "refused_ok",
+ "model": {
+  "reading_kwh": null,
+  "display_label": null,
+  "confidence": 0.0,
+  "unreadable_reason": "The image shows the meter's technical label/plate, not the actual reading display (LCD or dial)."
+ },
+ "seconds": 11.6
+}

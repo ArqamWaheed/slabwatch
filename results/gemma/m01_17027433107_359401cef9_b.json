@@ -1,0 +1,12 @@
+{
+ "expect": "refuse",
+ "truth_kwh": null,
+ "outcome": "refused_ok",
+ "model": {
+  "reading_kwh": null,
+  "display_label": null,
+  "confidence": 0.0,
+  "unreadable_reason": "The meter is too far away and the digits are not legible."
+ },
+ "seconds": 8.6
+}

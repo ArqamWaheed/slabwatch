@@ -1,0 +1,12 @@
+{
+ "expect": "ambiguous",
+ "truth_kwh": 1,
+ "outcome": "read 1",
+ "model": {
+  "reading_kwh": 1.0,
+  "display_label": "kWh",
+  "confidence": 1.0,
+  "unreadable_reason": null
+ },
+ "seconds": 12.5
+}

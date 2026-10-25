@@ -4,11 +4,13 @@ Rule: a category is declared only if its artifact exists. Numbers only from file
 
 | Category | Artifact that proves it | How to produce | Status |
 |---|---|---|---|
-| TabPFN | `docs/RESULTS.md` rows for `tabpfn_local` / `tabpfn_api` next to naive / last_ratio / gbm; `results/backtest-*-latest.json` | `python -m slabwatch backtest --models naive,last_ratio,gbm,tabpfn_local --sample 3000` | naive/last_ratio/gbm done (houses 1-10); TabPFN pending (token) |
-| TabPFN (live) | Screenshot of the page with backend `tabpfn_api` and the P10-P90 band | Render env `FORECAST_BACKEND=tabpfn_api` | pending |
-| Render | Live onrender.com URL; `render.yaml`; screenshot of `/healthz`; cold-start timing (page's "Server awake (N s)") | Blueprint deploy | pending |
-| Gemma | Table: N real meter photos -> read / refused / correct; JSON per photo under `results/gemma/` | `python -m slabwatch add-reading --photo ...` per photo | pending |
-| Temporal | Temporal UI screenshot of `slabwatch-cycle-<id>` with a timer; log of kill-worker-and-resume | `temporal server start-dev`, `worker`, `start-cycle`; kill and restart worker | logic tested on time-skipping server (tests/test_workflow.py) |
-| Browserbase | Session replay link/screenshot of a real PITC fetch; `results/bills/*.png` | `python -m slabwatch fetch-bill --ref <14 digits>` | pending (selectors TO VERIFY; captcha placeholder seen) |
-| SerpApi | `results/tariff/serpapi-*.json` query log; one doc cited in a rupee estimate | `python -m slabwatch tariff-watch` | pending |
-| Tiger Data | `db-init` output showing timescaledb + vector; one `tariff-watch --search` result with `mode: hybrid_rrf` | `db-init`, `tariff-watch`, `tariff-watch --search "FCA October"` | pending |
+| TabPFN | `docs/RESULTS.md` (all 41 homes incl. `tabpfn_api`); pre-registered test in `docs/PROTOCOL-RESULTS.md`, `results/protocol-test.json` | `backtest --models naive,last_ratio,gbm,tabpfn_api`; `protocol --final` | done |
+| Session replay | `docs/SESSION.md`; `results/session-aggregate.json` (65 test-home cycles near 200, dev-only model); `results/session-api.json` (one cycle through `/api/forecast`) | `python scripts/replay_session.py aggregate` / `api URL` | done (replay of real PRECON homes, not a live family) |
+| TabPFN (live) | Screenshot of the deployed page with the calibrated blend band | Render env `FORECAST_BACKEND=blend` | pending (Render) |
+| Render | Live onrender.com URL; `render.yaml`; screenshot of `/healthz`; cold-start timing | Blueprint deploy | pending (dashboard access) |
+| Gemma (meter) | `results/gemma/meter-eval.json` (+ `-v1`), one JSON per photo; truth in `eval/meter_truth.json` (17 CC photos) | `python scripts/eval_meters.py data/demo_meters` | done on demo photos; real household photos pending |
+| Gemma (bill) | `results/bill-eval.json`; truth in `eval/bill_truth.json` (public sample bills); `results/session-bill-photo.json` (KE specimen through `/api/bill-photo`) | `python scripts/eval_bills.py data/sample_bills` | done on public samples |
+| Temporal | logic: `tests/test_workflow.py` (time-skipping); dev-server smoke run (nudge -> signal -> forecast -> ntfy -> timer) noted in `memory.md` | `temporal server start-dev`, `worker`, `start-cycle` | smoke run done; UI screenshot + kill-and-resume log pending |
+| PITC bill fetch | `results/bills/*.html` (form post reaches the portal; a dummy ref returns "invalid") | `python -m slabwatch fetch-bill --ref <14 digits>` | pending a real, consented reference number |
+| Browserbase | `results/tariff/browserbase-*.json` (search + page read, Gemma quote check) | `python -m slabwatch tariff-watch` | done |
+| Tiger Data | `db-init` (timescaledb + vector); `tariff-watch --search "FCA October"` with `mode: hybrid_rrf` | `db-init`, `tariff-watch --search ...` | done (terminal output; no saved file yet) |

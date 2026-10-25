@@ -1,0 +1,214 @@
+{
+ "read_correct": 4,
+ "read_wrong": 0,
+ "read_refused": 0,
+ "refuse_ok": 9,
+ "refuse_guessed": 1,
+ "model": "gemma-4-26b-a4b-it",
+ "per_photo": {
+  "m01_17027433107_359401cef9_b.jpg": {
+   "expect": "refuse",
+   "truth_kwh": null,
+   "outcome": "refused_ok",
+   "model": {
+    "reading_kwh": null,
+    "display_label": null,
+    "confidence": 0.0,
+    "unreadable_reason": "The meter is too far away and the resolution is too low to read the digits or the display label."
+   },
+   "seconds": 13.3
+  },
+  "m02_2322219796_05e433cce5_b.jpg": {
+   "expect": "refuse",
+   "truth_kwh": null,
+   "outcome": "refused_ok",
+   "model": {
+    "reading_kwh": null,
+    "display_label": "KILOWATT HOURS",
+    "confidence": 0.1,
+    "unreadable_reason": "The meter dials are blurred and viewed from an angle, making it impossible to read every digit with certainty."
+   },
+   "seconds": 24.0
+  },
+  "m03_2927254475_e7366dab4d_b.jpg": {
+   "expect": "read",
+   "truth_kwh": 14930,
+   "outcome": "correct",
+   "model": {
+    "reading_kwh": 14930.0,
+    "display_label": "kWh",
+    "confidence": 1.0,
+    "unreadable_reason": null
+   },
+   "seconds": 10.6
+  },
+  "m04_397510397_d86b47de21_b.jpg": {
+   "expect": "read",
+   "truth_kwh": 1967.6,
+   "outcome": "correct",
+   "model": {
+    "reading_kwh": 1967.6,
+    "display_label": "kWh",
+    "confidence": 1.0,
+    "unreadable_reason": null
+   },
+   "seconds": 32.8
+  },
+  "m05_2795984721_236c066739_b.jpg": {
+   "expect": "read",
+   "truth_kwh": 9130,
+   "outcome": "correct",
+   "model": {
+    "reading_kwh": 9130.0,
+    "display_label": null,
+    "confidence": 1.0,
+    "unreadable_reason": null
+   },
+   "seconds": 18.9
+  },
+  "m06_2995782055_9da129d390_b.jpg": {
+   "expect": "refuse",
+   "truth_kwh": null,
+   "outcome": "refused_ok",
+   "model": {
+    "reading_kwh": null,
+    "display_label": null,
+    "confidence": 0.9,
+    "unreadable_reason": "The LCD screen does not show a 'kWh' label or a code (e.g., 1.8.0) to confirm the displayed number is the cumulative active energy; it may be displaying remaining credit."
+   },
+   "seconds": 26.4
+  },
+  "m07_860807671_c4e831d7a3_b.jpg": {
+   "expect": "ambiguous",
+   "truth_kwh": 5391.3,
+   "outcome": "read 25391.3",
+   "model": {
+    "reading_kwh": 25391.3,
+    "display_label": "kWh",
+    "confidence": 0.95,
+    "unreadable_reason": null
+   },
+   "seconds": 13.6
+  },
+  "m08_2239846724_58122b150b_b.jpg": {
+   "expect": "refuse",
+   "truth_kwh": null,
+   "outcome": "refused_ok",
+   "model": {
+    "reading_kwh": null,
+    "display_label": null,
+    "confidence": 1.0,
+    "unreadable_reason": "The image shows the meter's specification label/nameplate, not the actual reading display (LCD or dial)."
+   },
+   "seconds": 12.6
+  },
+  "m09_14137596527_73eaea20ab_b.jpg": {
+   "expect": "refuse",
+   "truth_kwh": null,
+   "outcome": "guessed",
+   "model": {
+    "reading_kwh": 5895.0,
+    "display_label": "kWh",
+    "confidence": 0.9,
+    "unreadable_reason": null
+   },
+   "seconds": 79.1
+  },
+  "m10_3959991557_668e1ea2fa_b.jpg": {
+   "expect": "refuse",
+   "truth_kwh": null,
+   "outcome": "refused_ok",
+   "model": {
+    "reading_kwh": null,
+    "display_label": null,
+    "confidence": 0.0,
+    "unreadable_reason": "The meter display is completely obscured by dirt, grime, and moss on the protective cover, making it impossible to see any numbers or labels."
+   },
+   "seconds": 12.0
+  },
+  "m11_8013362749_a2576e462c_b.jpg": {
+   "expect": "read",
+   "truth_kwh": 2439,
+   "outcome": "correct",
+   "model": {
+    "reading_kwh": 2439.0,
+    "display_label": "kWh",
+    "confidence": 1.0,
+    "unreadable_reason": null
+   },
+   "seconds": 9.0
+  },
+  "m12_18488593585_785a1d07e4_b.jpg": {
+   "expect": "refuse",
+   "truth_kwh": null,
+   "outcome": "refused_ok",
+   "model": {
+    "reading_kwh": null,
+    "display_label": null,
+    "confidence": 0.0,
+    "unreadable_reason": "The meter displays are too blurry, distant, and partially obscured by foliage to read the digits or labels."
+   },
+   "seconds": 16.4
+  },
+  "m13_9787104861_4fd3638bdf_b.jpg": {
+   "expect": "refuse",
+   "truth_kwh": null,
+   "outcome": "refused_ok",
+   "model": {
+    "reading_kwh": null,
+    "display_label": null,
+    "confidence": 0.0,
+    "unreadable_reason": "The meter screen is too small, blurry, and far away to read any digits or labels."
+   },
+   "seconds": 11.2
+  },
+  "m14_9437074650_8361aa9f18_b.jpg": {
+   "expect": "refuse",
+   "truth_kwh": null,
+   "outcome": "refused_ok",
+   "model": {
+    "reading_kwh": null,
+    "display_label": "KILOWATTHOURS",
+    "confidence": 0.0,
+    "unreadable_reason": "The meter dials are too small and blurry to read the digits."
+   },
+   "seconds": 13.5
+  },
+  "m15_TNB_Digital_Electrical_Meters.jpg": {
+   "expect": "refuse",
+   "truth_kwh": null,
+   "outcome": "refused_ok",
+   "model": {
+    "reading_kwh": null,
+    "display_label": "kVARh",
+    "confidence": 0.9,
+    "unreadable_reason": "The screen is displaying reactive energy (kVARh) instead of active energy (kWh)."
+   },
+   "seconds": 18.4
+  },
+  "m16_Digital_Electric_meter_Erorr.jpg": {
+   "expect": "ambiguous",
+   "truth_kwh": 10,
+   "outcome": "refused",
+   "model": {
+    "reading_kwh": null,
+    "display_label": "T2",
+    "confidence": 1.0,
+    "unreadable_reason": "The screen shows the T2 tariff register, not the total cumulative kWh."
+   },
+   "seconds": 47.4
+  },
+  "m17_Elster_Type_R15_electricity_meter.jpeg": {
+   "expect": "ambiguous",
+   "truth_kwh": 1,
+   "outcome": "read 1",
+   "model": {
+    "reading_kwh": 1.0,
+    "display_label": "kWh",
+    "confidence": 1.0,
+    "unreadable_reason": null
+   },
+   "seconds": 16.2
+  }
+ }
+}

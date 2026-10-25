@@ -1,0 +1,12 @@
+{
+ "expect": "refuse",
+ "truth_kwh": null,
+ "outcome": "refused_ok",
+ "model": {
+  "reading_kwh": null,
+  "display_label": null,
+  "confidence": 0.9,
+  "unreadable_reason": "The LCD screen does not explicitly display the 'kWh' label or the '1.8.0' code required to confirm this is the cumulative active energy register; it may be displaying credit or another parameter."
+ },
+ "seconds": 29.0
+}

@@ -1,0 +1,12 @@
+{
+ "expect": "refuse",
+ "truth_kwh": null,
+ "outcome": "refused_ok",
+ "model": {
+  "reading_kwh": null,
+  "display_label": "kVARh",
+  "confidence": 1.0,
+  "unreadable_reason": "The displayed screen shows reactive energy (kVARh) instead of active energy (kWh)."
+ },
+ "seconds": 17.5
+}

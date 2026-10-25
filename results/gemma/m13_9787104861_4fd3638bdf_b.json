@@ -1,0 +1,12 @@
+{
+ "expect": "refuse",
+ "truth_kwh": null,
+ "outcome": "refused_ok",
+ "model": {
+  "reading_kwh": null,
+  "display_label": null,
+  "confidence": 0.0,
+  "unreadable_reason": "The meter screen is too small, blurry, and distant to read any digits or labels."
+ },
+ "seconds": 8.8
+}

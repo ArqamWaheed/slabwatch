@@ -1,0 +1,12 @@
+{
+ "expect": "read",
+ "truth_kwh": 2439,
+ "outcome": "correct",
+ "model": {
+  "reading_kwh": 2439.0,
+  "display_label": "kWh",
+  "confidence": 1.0,
+  "unreadable_reason": null
+ },
+ "seconds": 10.4
+}

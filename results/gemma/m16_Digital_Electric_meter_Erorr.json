@@ -1,0 +1,12 @@
+{
+ "expect": "ambiguous",
+ "truth_kwh": 10,
+ "outcome": "refused",
+ "model": {
+  "reading_kwh": null,
+  "display_label": "016",
+  "confidence": 1.0,
+  "unreadable_reason": "The displayed screen shows code 016 (Total Inst kW) instead of the cumulative kWh reading."
+ },
+ "seconds": 36.1
+}
