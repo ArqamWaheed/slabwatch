@@ -74,16 +74,20 @@ def forecast_cycle(cycle_start, start_reading: float, readings: list[dict], thre
     if pts[-1][1] < 0:
         raise ValueError("latest reading is below the cycle's starting reading")
     days = [start + dt.timedelta(days=i) for i in range(cycle_days)]
+    weather_note = "Open-Meteo forecast for Lahore"
     if temps is None:
         from slabwatch.data.weather import temps_for
 
-        temps = temps_for(days, s.lat, s.lon)
+        notes: list[str] = []
+        temps = temps_for(days, s.lat, s.lon, notes)
+        if notes:
+            weather_note = notes[0]
     tl = [temps.get(str(x)) for x in days]
     feats = cut_features(pts, d, start, tl[:d], tl[d:], cycle_days, meta or {},
                          prev_cycle_total=prev_cycle_units if prev_cycle_units else float("nan"))
     f = model(backend).forecast_one(feats, threshold, FEATURES, cycle_days)
     dec = decide(f.p10, f.p50, f.p90, f.p_cross, feats["units_so_far"], d, cycle_days, threshold,
-                 s.penalty_months, backend=f.backend)
+                 s.penalty_months, backend=f.backend, weather_note=weather_note)
     return {"forecast": f.to_dict(), "decision": dec.to_dict(), "features": feats,
             "money": money(f.p50, f.p_cross, threshold, prev_cycle_units, s.penalty_months, sanctioned_kw, fca)}
 
@@ -115,26 +119,31 @@ def notify(message: str, title: str = "Slabwatch", priority: str = "default") ->
     return post_text(f"{s.ntfy_server}/{topic}", message, {"Title": title, "Priority": priority})
 
 
-def export_gbm_asset(max_rows: int = 3000) -> Path:
-    """Ship the blend's fitted GBM for the rows Render uses (the train asset), so a cold start skips that fit."""
+def export_gbm_asset(max_rows: int = 3000) -> list[Path]:
+    """Ship fitted GBMs for the rows Render uses (the train asset), so a cold start skips the fit.
+    Two fits, matching model(): the blend's GBM (setting B, TabPFN-capped sample) and the plain gbm backend
+    (default params, all asset rows)."""
     import shutil
 
     import pandas as pd
 
-    from slabwatch.forecast import GBM_PARAMS_B, QUANTILES, Forecaster, gbm_key, gbm_paths
+    from slabwatch.forecast import GBM_PARAMS, GBM_PARAMS_B, QUANTILES, Forecaster, gbm_key, gbm_paths
 
     with resources.as_file(resources.files("slabwatch").joinpath(TRAIN_ASSET)) as p:
-        df = pd.read_parquet(p)
-    if len(df) > max_rows:  # same sample as model() so the fingerprint matches
-        df = df.sample(max_rows, random_state=0)
-    X, y = feature_matrix(df).values, df["ratio"].values
-    Forecaster("gbm", gbm_params=GBM_PARAMS_B, cache=True).fit(X, y)
-    shipped, cached = gbm_paths(gbm_key(X, y, GBM_PARAMS_B, QUANTILES, 0))
-    if not shipped.exists():
-        for old in shipped.parent.glob("gbm-*.pkl.gz"):
+        full = pd.read_parquet(p)
+    sample = full.sample(max_rows, random_state=0) if len(full) > max_rows else full
+    out = []
+    for df, params in ((sample, GBM_PARAMS_B), (full, GBM_PARAMS)):
+        X, y = feature_matrix(df).values, df["ratio"].values
+        Forecaster("gbm", gbm_params=params, cache=True).fit(X, y)
+        shipped, cached = gbm_paths(gbm_key(X, y, params, QUANTILES, 0))
+        if not shipped.exists():
+            shutil.copyfile(cached, shipped)
+        out.append(shipped)
+    for old in out[0].parent.glob("gbm-*.pkl.gz"):
+        if old not in out:
             old.unlink()
-        shutil.copyfile(cached, shipped)
-    return shipped
+    return out
 
 
 def export_train_asset(df, path: Path | None = None, max_rows: int = 5000) -> Path:

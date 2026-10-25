@@ -1,0 +1,9 @@
+{
+ "url": "https://slabwatch-ojcn.onrender.com",
+ "deployed_commit": "998d2be",
+ "checked_utc": "2026-10-25T09:07Z",
+ "healthz": {"status": 200, "seconds": 32.88, "body": {"ok": true, "version": "0.1.0", "up_since": "2026-10-25T09:07:43.028268+00:00", "model": "cold"}, "note": "first request after idle: includes the free-plan wake-up"},
+ "config": {"backend": "gbm", "photo_enabled": false},
+ "api_forecast": {"status": 502, "error": "HTTP 429 from https://api.open-meteo.com/v1/forecast: Daily API request limit exceeded", "note": "shared Render egress IPs; fixed by the climatology fallback (not yet deployed at this check)"},
+ "reported_by_user": {"cold_start_seconds": 32.6, "idle_minutes": 17, "healthz_screenshot": "slabwatch-healthz.jpg"}
+}
