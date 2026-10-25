@@ -45,5 +45,6 @@ TO VERIFY: embeddinggemma dim 768; Render 512 MB fit with blend; PITC post-submi
 - `data/precon.py` CKAN+extract+daily · `data/weather.py` Open-Meteo
 - `features.py` rows + leakage-safe `cut_features` · `forecast.py` backends + p_cross + GBM cache · `decide.py`
 - `evaluate.py` backtest · `protocol.py` dev/test · `service.py` glue · `web.py` + `static/index.html`
+- Design: `BRAND.md` + `static/tokens.css` (all page values) + `static/mark.svg`; `/static` mounted in web.py (2026-10-25)
 - `gemma.py` · `bill.py` · `bill_estimate.py` · `tariff.py` · `store.py` + `sql/schema.sql` · `workflows.py` + `worker.py`
 - `scripts/`: backtest, eval_bills, eval_meters, replay_session

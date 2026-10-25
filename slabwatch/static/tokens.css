@@ -1,0 +1,87 @@
+/* Slabwatch design tokens. Every colour, size, space and curve on the page comes from here.
+   Restyle the site by editing this file. Rationale and usage rules: BRAND.md at the repo root.
+   Keep the hex values in sync with scripts/post_images.py so the post images match the app. */
+
+:root {
+  color-scheme: light;
+
+  /* Colour: the meter. Grey-green casing, a backlit LCD, one red line at the limit. */
+  --casing: #E4E9E1;      /* page background */
+  --surface: #EEF2EB;     /* raised panels on the casing */
+  --ink: #14201A;         /* text, primary button */
+  --on-ink: #E4E9E1;      /* text on an --ink fill */
+  --muted: #55615A;       /* secondary text (5.2:1 on casing) */
+  --rule: #C4CCC0;        /* hairlines, input borders */
+  --field: #F5F7F3;       /* input fill */
+
+  --lcd: #C3D1AC;         /* the readout, the one bold element */
+  --lcd-ink: #1C2914;
+  --lcd-dim: #7D8D6C;     /* unlit segments, empty state */
+  --lcd-limit: #8E1B12;   /* small red text on the LCD (5.6:1) */
+
+  --limit: #B42318;       /* the cliff: limit line, over-limit verdicts, cost callout */
+  --safe: #2F6B3E;
+  --watch: #8A5600;
+  --band: #5F7F64;        /* focus rings, forecast band accents */
+
+  /* Type: Atkinson Hyperlegible, built for low-vision readers; mono for anything a meter would show. */
+  --font-sans: "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-mono: "Atkinson Hyperlegible Mono", ui-monospace, monospace;
+  --fs-xs: 0.78rem;
+  --fs-sm: 0.9rem;
+  --fs-base: 1.0625rem;   /* 17px body */
+  --fs-lg: 1.25rem;
+  --fs-xl: clamp(1.6rem, 5.4vw, 2.25rem);   /* page headline */
+  --fs-display: clamp(3.4rem, 18vw, 5.25rem); /* LCD digits */
+  --lh-tight: 1.15;
+  --lh-body: 1.5;
+  --track-label: 0.08em;  /* uppercase meter labels */
+
+  /* Space: 4px base. */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 72px;
+
+  /* Shape */
+  --r-sm: 4px;
+  --r: 6px;
+  --r-lg: 10px;
+  --hit: 44px;            /* minimum touch target */
+  --col-read: 34rem;      /* single-column width */
+  --col-wide: 68rem;      /* two-column width on desktop */
+
+  /* Depth: only the LCD and panels get any. */
+  --lcd-inset: inset 0 2px 0 rgba(0, 0, 0, .18), inset 0 -1px 0 rgba(255, 255, 255, .35);
+  --panel-edge: 0 1px 0 rgba(255, 255, 255, .6) inset, 0 1px 2px rgba(20, 32, 26, .08);
+
+  /* Motion: short, ease-out, never on page load. */
+  --ease-out: cubic-bezier(.23, 1, .32, 1);
+  --dur-fast: 140ms;
+  --dur: 450ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --casing: #121815; --surface: #18201B; --ink: #E2E8E1; --on-ink: #121815;
+    --muted: #9AA79E; --rule: #2B3530; --field: #1A221D;
+    --lcd: #A7B98F; --lcd-ink: #16200F; --lcd-dim: #61714F; --lcd-limit: #7A1A10;
+    --limit: #F0614F; --safe: #6FBF85; --watch: #E2A642; --band: #6E9174;
+    --lcd-inset: inset 0 2px 0 rgba(0, 0, 0, .35), inset 0 -1px 0 rgba(255, 255, 255, .25);
+    --panel-edge: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 1px 2px rgba(0, 0, 0, .4);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --casing: #121815; --surface: #18201B; --ink: #E2E8E1; --on-ink: #121815;
+  --muted: #9AA79E; --rule: #2B3530; --field: #1A221D;
+  --lcd: #A7B98F; --lcd-ink: #16200F; --lcd-dim: #61714F; --lcd-limit: #7A1A10;
+  --limit: #F0614F; --safe: #6FBF85; --watch: #E2A642; --band: #6E9174;
+  --lcd-inset: inset 0 2px 0 rgba(0, 0, 0, .35), inset 0 -1px 0 rgba(255, 255, 255, .25);
+  --panel-edge: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 1px 2px rgba(0, 0, 0, .4);
+}

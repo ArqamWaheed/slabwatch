@@ -7,6 +7,7 @@ from importlib import resources
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from slabwatch import __version__
@@ -15,6 +16,7 @@ from slabwatch.config import MissingKey, settings
 app = FastAPI(title="Slabwatch", version=__version__)
 _BOOT = dt.datetime.now(dt.timezone.utc)
 _warm = {"state": "cold", "error": None}
+app.mount("/static", StaticFiles(directory=str(resources.files("slabwatch").joinpath("static"))), name="static")
 
 
 class Reading(BaseModel):

@@ -13,7 +13,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 OUT = Path("docs/images")
 CASING, INK, MUTED, RULE = "#E4E9E1", "#14201A", "#55615A", "#C4CCC0"
-LCD, LCD_INK, LIMIT, SAFE, WATCH, BAND = "#C3D1AC", "#1C2914", "#B42318", "#2F6B3E", "#9A6100", "#5F7F64"
+LCD, LCD_INK, LIMIT, SAFE, WATCH, BAND = "#C3D1AC", "#1C2914", "#B42318", "#2F6B3E", "#8A5600", "#5F7F64"
 FD = Path(os.environ.get("FONT_DIR", ""))
 
 

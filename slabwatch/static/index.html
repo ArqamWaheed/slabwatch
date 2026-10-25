@@ -4,138 +4,233 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Slabwatch</title>
+<meta name="description" content="Forecast where this month's electricity units will land, before the 200-unit protected limit.">
+<meta name="theme-color" content="#E4E9E1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121815" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/static/mark.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Atkinson+Hyperlegible+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/tokens.css">
 <style>
-  /* The page borrows from the meter itself: grey-green casing, a backlit LCD, one red line at the limit. */
-  :root {
-    --casing:#E4E9E1; --ink:#14201A; --muted:#55615A; --rule:#C4CCC0; --field:#F5F7F3;
-    --lcd:#C3D1AC; --lcd-ink:#1C2914; --lcd-dim:#7D8D6C;
-    --limit:#B42318; --safe:#2F6B3E; --watch:#9A6100; --band:#5F7F64;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --casing:#121815; --ink:#E2E8E1; --muted:#9AA79E; --rule:#2B3530; --field:#1A221D;
-      --lcd:#A7B98F; --lcd-ink:#16200F; --lcd-dim:#61714F;
-      --limit:#F0614F; --safe:#6FBF85; --watch:#E2A642; --band:#4E6B53;
-    }
-  }
+  /* Layout and components only. Every value comes from tokens.css; see BRAND.md. */
   * { box-sizing:border-box; }
+  html { -webkit-text-size-adjust:100%; }
   body { margin:0; background:var(--casing); color:var(--ink);
-         font:17px/1.5 "Atkinson Hyperlegible", system-ui, sans-serif; }
-  main { max-width:34rem; margin:0 auto; padding:20px 16px 56px; }
-  h1 { font-size:1.15rem; margin:0; font-weight:700; }
-  .lede { margin:2px 0 18px; color:var(--muted); }
+         font:var(--fs-base)/var(--lh-body) var(--font-sans); }
+  .wrap { max-width:var(--col-read); margin:0 auto; padding:0 var(--s-4); }
+
+  /* Top bar */
+  .top { display:flex; align-items:center; justify-content:space-between; gap:var(--s-3);
+         padding-top:var(--s-4); padding-bottom:var(--s-4); border-bottom:1px solid var(--rule); }
+  .brand { display:flex; align-items:center; gap:var(--s-2); font-weight:700; font-size:var(--fs-base);
+           color:inherit; text-decoration:none; letter-spacing:-.01em; }
+  .brand svg { width:28px; height:28px; flex:none; }
+  .top a.how-link { color:var(--muted); font-size:var(--fs-sm); text-underline-offset:3px; }
+
+  /* Intro */
+  .intro { padding:var(--s-6) 0 var(--s-5); }
+  .eyebrow { margin:0 0 var(--s-2); font:700 var(--fs-xs)/1 var(--font-mono); letter-spacing:var(--track-label);
+             text-transform:uppercase; color:var(--muted); }
+  h1 { margin:0; font-size:var(--fs-xl); line-height:var(--lh-tight); letter-spacing:-.02em; text-wrap:balance; }
+  h1 .cliff { color:var(--limit); }
+  .lede { margin:var(--s-3) 0 0; color:var(--muted); max-width:30rem; text-wrap:pretty; }
 
   /* The one bold element: the readout. */
-  .lcd { background:var(--lcd); color:var(--lcd-ink); border-radius:6px; padding:16px 16px 12px;
-         box-shadow: inset 0 2px 0 rgba(0,0,0,.18), inset 0 -1px 0 rgba(255,255,255,.35); }
-  .lcd .digits { font-family:"Atkinson Hyperlegible Mono", ui-monospace, monospace; font-weight:700;
-                 font-size:clamp(3rem, 16vw, 4.6rem); line-height:1; letter-spacing:-.02em;
-                 font-variant-numeric:tabular-nums; }
-  .lcd .digits.empty { color:var(--lcd-dim); }
-  .lcd .unit { font-size:1rem; font-weight:700; margin-left:.35rem; }
-  .lcd .caption { margin:4px 0 0; font-size:.95rem; }
-  .scale { position:relative; height:40px; margin:26px 0 2px; }
+  .lcd { background:var(--lcd); color:var(--lcd-ink); border-radius:var(--r-lg);
+         padding:var(--s-3) var(--s-4) var(--s-3); box-shadow:var(--lcd-inset); }
+  .lcd-head { display:flex; justify-content:space-between; gap:var(--s-3);
+              font:700 var(--fs-xs)/1 var(--font-mono); letter-spacing:var(--track-label); text-transform:uppercase;
+              opacity:.72; padding-top:var(--s-1); }
+  .readout { position:relative; display:flex; align-items:baseline; margin-top:var(--s-3); }
+  .digits-box { position:relative; font-family:var(--font-mono); font-weight:700; font-size:var(--fs-display);
+                line-height:1; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
+  .digits-box .ghost { position:absolute; left:0; top:0; color:var(--lcd-ink); opacity:.07; pointer-events:none; }
+  .digits-box .digits { position:relative; }
+  .digits.empty { color:var(--lcd-dim); }
+  .lcd .unit { font-size:var(--fs-base); font-weight:700; margin-left:var(--s-2); }
+  .lcd .caption { margin:var(--s-2) 0 0; font-size:var(--fs-sm); max-width:28rem; }
+  .scale { position:relative; height:40px; margin:var(--s-6) 0 var(--s-1); }
   .scale .track { position:absolute; left:0; right:0; top:19px; height:2px; background:var(--lcd-dim); }
   .scale .band { position:absolute; top:11px; height:18px; background:var(--lcd-ink); opacity:.28; border-radius:2px; }
-  .scale .mid { position:absolute; top:6px; width:3px; height:28px; background:var(--lcd-ink); }
-  .scale .limit { position:absolute; top:0; width:3px; height:40px; background:var(--limit); }
-  .scale .limit span { position:absolute; top:-18px; left:-10px; font-size:.75rem; font-weight:700; color:var(--limit); white-space:nowrap; }
-  .ticks { display:flex; justify-content:space-between; font-size:.8rem; color:var(--lcd-ink); opacity:.75;
-           font-family:"Atkinson Hyperlegible Mono", monospace; }
+  .scale .mid { position:absolute; top:6px; width:3px; height:28px; background:var(--lcd-ink); border-radius:1px; }
+  .scale .limit { position:absolute; top:0; width:3px; height:40px; background:var(--limit); border-radius:1px; }
+  .scale .limit span { position:absolute; top:-18px; left:50%; transform:translateX(-50%);
+                       font:700 var(--fs-xs)/1 var(--font-mono); color:var(--lcd-limit); white-space:nowrap; }
+  .ticks { display:flex; justify-content:space-between; font:500 var(--fs-xs)/1.4 var(--font-mono);
+           color:var(--lcd-ink); opacity:.75; padding-bottom:var(--s-1); }
 
-  .verdict { margin:18px 0 4px; font-size:1.25rem; font-weight:700; }
+  /* Result */
+  .result { margin-top:var(--s-5); }
+  .verdict { display:flex; align-items:center; gap:var(--s-2); margin:0 0 var(--s-2);
+             font-size:var(--fs-lg); font-weight:700; line-height:var(--lh-tight); }
+  .verdict::before { content:""; width:10px; height:10px; border-radius:50%; background:currentColor; flex:none; }
   .v-safe { color:var(--safe); } .v-watch, .v-unsure { color:var(--watch); } .v-act, .v-already_over { color:var(--limit); }
-  .msg { margin:0 0 6px; }
-  .ur { font-style:italic; color:var(--muted); margin:6px 0; }  /* Roman Urdu, so left-to-right Latin script */
-  .money { border-left:3px solid var(--limit); padding:2px 0 2px 12px; margin:14px 0; }
-  .money strong { font-size:1.2rem; }
-  .muted { color:var(--muted); font-size:.9rem; }
+  .msg { margin:0 0 var(--s-2); }
+  .ur { font-style:italic; color:var(--muted); margin:var(--s-2) 0; }  /* Roman Urdu, so left-to-right Latin script */
+  .money { border-left:3px solid var(--limit); padding:var(--s-1) 0 var(--s-1) var(--s-3); margin:var(--s-4) 0; }
+  .money strong { font-size:var(--fs-lg); line-height:var(--lh-tight); }
+  .muted { color:var(--muted); font-size:var(--fs-sm); }
 
-  form { margin-top:22px; }
-  fieldset { border:0; border-top:1px solid var(--rule); margin:0; padding:14px 0 4px; }
-  legend { font-weight:700; padding:0 6px 0 0; }
-  .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-  label { display:block; font-size:.9rem; color:var(--muted); margin:10px 0 4px; }
-  input[type=date], input[type=number] { width:100%; font:inherit; padding:10px 12px; border:1px solid var(--rule);
-          border-radius:6px; background:var(--field); color:inherit; }
-  input:focus-visible, button:focus-visible, .filebtn:focus-within, summary:focus-visible { outline:3px solid var(--band); outline-offset:2px; }
-  .filebtn { position:relative; display:inline-flex; align-items:center; gap:8px; padding:9px 12px; border:1px dashed var(--muted);
-             border-radius:6px; cursor:pointer; font-size:.95rem; margin-top:10px; color:var(--ink); }
+  /* Form */
+  form { margin-top:var(--s-6); }
+  .panel { background:var(--surface); border-radius:var(--r-lg); box-shadow:var(--panel-edge);
+           padding:var(--s-1) var(--s-4) var(--s-4); }
+  fieldset { border:0; margin:0; padding:var(--s-4) 0 0; min-width:0; }
+  fieldset + fieldset { border-top:1px solid var(--rule); margin-top:var(--s-4); }
+  legend { display:flex; align-items:center; gap:var(--s-2); float:left; width:100%; padding:0;
+           font-weight:700; }
+  legend + * { clear:both; }
+  .step { display:inline-grid; place-items:center; width:22px; height:22px; border-radius:50%;
+          background:var(--ink); color:var(--on-ink); font:700 var(--fs-xs)/1 var(--font-mono); }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:var(--s-3); }
+  label { display:block; font-size:var(--fs-sm); color:var(--muted); margin:var(--s-3) 0 var(--s-1); }
+  input[type=date], input[type=number] { width:100%; min-height:var(--hit); font:inherit; padding:var(--s-2) var(--s-3);
+          border:1px solid var(--rule); border-radius:var(--r); background:var(--field); color:inherit;
+          font-variant-numeric:tabular-nums; transition:border-color var(--dur-fast) var(--ease-out); }
+  input[type=date]:hover, input[type=number]:hover { border-color:var(--muted); }
+  input:focus-visible, button:focus-visible, .filebtn:focus-within, summary:focus-visible, a:focus-visible {
+          outline:3px solid var(--band); outline-offset:2px; }
+  .filebtn { position:relative; display:inline-flex; align-items:center; gap:var(--s-2); min-height:var(--hit);
+             padding:var(--s-2) var(--s-3); border:1px dashed var(--muted); border-radius:var(--r); cursor:pointer;
+             font-size:var(--fs-sm); margin-top:var(--s-3); color:var(--ink);
+             transition:background-color var(--dur-fast) var(--ease-out); }
+  .filebtn:hover { background:var(--field); }
+  .filebtn svg { width:18px; height:18px; flex:none; }
   .filebtn input { position:absolute; opacity:0; width:1px; height:1px; }
-  button.go { width:100%; margin-top:18px; padding:13px; font:inherit; font-weight:700; border:0; border-radius:6px;
-              background:var(--ink); color:var(--casing); cursor:pointer; }
+  .filebtn[hidden] { display:none; }
+  .rules { margin-top:var(--s-4); }
+  button.go { width:100%; min-height:calc(var(--hit) + 6px); margin-top:var(--s-5); padding:var(--s-3); font:inherit;
+              font-weight:700; border:0; border-radius:var(--r); background:var(--ink); color:var(--on-ink); cursor:pointer;
+              transition:transform var(--dur-fast) var(--ease-out), opacity var(--dur-fast) var(--ease-out); }
+  button.go:active:not(:disabled) { transform:scale(.98); }
   button.go:disabled { opacity:.6; cursor:progress; }
-  #status { min-height:1.4em; margin:10px 0 0; font-size:.92rem; color:var(--muted); }
-  details { margin-top:12px; } summary { cursor:pointer; color:var(--muted); }
-  ul { padding-left:18px; margin:6px 0; } li { margin:3px 0; }
-  table.hist { border-collapse:collapse; font-size:.9rem; margin-top:8px; }
-  table.hist td { padding:2px 10px 2px 0; font-variant-numeric:tabular-nums; }
+  #status { min-height:1.4em; margin:var(--s-3) 0 0; font-size:var(--fs-sm); color:var(--muted); }
+  details { margin-top:var(--s-3); }
+  summary { cursor:pointer; color:var(--muted); min-height:var(--hit); display:flex; align-items:center; gap:var(--s-2);
+            list-style:none; width:fit-content; }
+  summary::-webkit-details-marker { display:none; }
+  summary::before { content:"+"; font:700 var(--fs-base)/1 var(--font-mono); width:1ch; }
+  details[open] > summary::before { content:"\2212"; }
+  ul { padding-left:var(--s-4); margin:var(--s-1) 0; } li { margin:var(--s-1) 0; }
+  table.hist { border-collapse:collapse; font-size:var(--fs-sm); margin-top:var(--s-2); }
+  table.hist td { padding:2px var(--s-3) 2px 0; font-variant-numeric:tabular-nums; }
   table.hist td.over { color:var(--limit); font-weight:700; }
-  footer { margin-top:28px; }
+
+  /* How it decides */
+  .how { margin-top:var(--s-8); padding-top:var(--s-5); border-top:1px solid var(--rule); }
+  .how h2 { margin:0 0 var(--s-4); font-size:var(--fs-lg); }
+  .how ol { list-style:none; margin:0; padding:0; display:grid; gap:var(--s-4); counter-reset:how; }
+  .how li { counter-increment:how; display:grid; grid-template-columns:auto 1fr; gap:var(--s-1) var(--s-3); margin:0; }
+  .how li::before { content:counter(how, decimal-leading-zero); grid-row:span 2;
+                    font:700 var(--fs-sm)/1.6 var(--font-mono); color:var(--muted); }
+  .how b { display:block; }
+  .how li span { color:var(--muted); font-size:var(--fs-sm); }
+
+  footer { margin:var(--s-7) 0 0; padding:var(--s-4) 0 var(--s-7); border-top:1px solid var(--rule); }
+  footer p { margin:0 0 var(--s-2); max-width:38rem; }
+  footer a { color:inherit; text-underline-offset:3px; }
+
   @media (max-width:380px) { .row { grid-template-columns:1fr; } }
-  @media (prefers-reduced-motion:no-preference) { .scale .band, .scale .mid { transition:left .5s ease, width .5s ease; } }
+
+  /* Desktop: readout and result on the left, the form on the right. */
+  @media (min-width:960px) {
+    .wrap { max-width:var(--col-wide); padding:0 var(--s-6); }
+    .layout { display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 27rem); gap:var(--s-7); align-items:start; }
+    .intro { padding-top:var(--s-7); grid-column:1 / -1; }
+    form { margin-top:0; }
+    .how ol { grid-template-columns:repeat(3, minmax(0, 1fr)); gap:var(--s-5); }
+  }
+
+  @media (prefers-reduced-motion:no-preference) {
+    .scale .band, .scale .mid { transition:left var(--dur) var(--ease-out), width var(--dur) var(--ease-out); }
+  }
 </style>
 </head>
 <body>
-<main>
-  <h1>Slabwatch</h1>
-  <p class="lede">Where will this month's units land? One meter reading is enough to check before the bill decides for you.</p>
+<header class="wrap top">
+  <a class="brand" href="/" aria-label="Slabwatch home">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="6" fill="var(--ink)"/><rect x="5" y="8" width="22" height="16" rx="2.5" fill="var(--lcd)"/><rect x="8" y="14.5" width="11" height="3" rx="1" fill="var(--lcd-ink)"/><rect x="21" y="10.5" width="2.5" height="11" rx="1" fill="var(--limit)"/></svg>
+    Slabwatch
+  </a>
+  <a class="how-link" href="#how">How it decides</a>
+</header>
 
-  <section class="lcd" aria-live="polite">
-    <div><span class="digits empty" id="p50">---</span><span class="unit">units</span></div>
-    <p class="caption" id="caption">Likely total for this billing month. Enter a reading below.</p>
-    <div class="scale" aria-hidden="true">
-      <div class="track"></div>
-      <div class="band" id="band" style="left:0;width:0"></div>
-      <div class="mid" id="mid" style="left:-10px"></div>
-      <div class="limit" id="limitline" style="left:66.6%"><span id="limitlabel">200</span></div>
+<main class="wrap">
+  <div class="intro">
+    <p class="eyebrow">For protected electricity consumers</p>
+    <h1>Know before the <span class="cliff">200-unit cliff</span>.</h1>
+    <p class="lede">Where will this month's units land? One meter reading is enough to check before the bill decides for you.</p>
+  </div>
+
+  <div class="layout">
+    <div>
+      <section class="lcd" aria-live="polite" aria-label="Forecast">
+        <div class="lcd-head" aria-hidden="true"><span>Forecast</span><span>This billing month</span></div>
+        <div class="readout">
+          <span class="digits-box"><span class="ghost" aria-hidden="true">888</span><span class="digits empty" id="p50">---</span></span><span class="unit">units</span>
+        </div>
+        <p class="caption" id="caption">Likely total for this billing month. Enter a reading to see it.</p>
+        <div class="scale" aria-hidden="true">
+          <div class="track"></div>
+          <div class="band" id="band" style="left:0;width:0"></div>
+          <div class="mid" id="mid" style="left:-10px"></div>
+          <div class="limit" id="limitline" style="left:66.6%"><span id="limitlabel">200</span></div>
+        </div>
+        <div class="ticks"><span>0</span><span id="tickmax">300</span></div>
+      </section>
+
+      <section class="result" id="result" hidden>
+        <p class="verdict" id="verdict"></p>
+        <p class="msg" id="msg"></p>
+        <p class="ur" id="ur"></p>
+        <div class="money" id="money" hidden></div>
+        <details><summary>What this assumed</summary><ul id="assume"></ul></details>
+      </section>
     </div>
-    <div class="ticks"><span>0</span><span id="tickmax">300</span></div>
-  </section>
 
-  <section id="result" hidden>
-    <p class="verdict" id="verdict"></p>
-    <p class="msg" id="msg"></p>
-    <p class="ur" id="ur"></p>
-    <div class="money" id="money" hidden></div>
-    <details><summary>What this assumed</summary><ul id="assume"></ul></details>
-  </section>
+    <form id="f" class="panel" novalidate>
+      <fieldset>
+        <legend><span class="step" aria-hidden="true">1</span>Last bill</legend>
+        <div class="row">
+          <div><label for="start">Reading date on the bill</label><input id="start" type="date" required></div>
+          <div><label for="sr">Meter reading on that date</label><input id="sr" type="number" step="0.1" min="0" inputmode="decimal" required></div>
+        </div>
+        <div class="row">
+          <div><label for="prev">Units on that bill (optional)</label><input id="prev" type="number" min="0" inputmode="numeric"></div>
+          <div><label for="kw">Sanctioned load, kW</label><input id="kw" type="number" min="0.5" step="0.5" value="2" inputmode="decimal"></div>
+        </div>
+        <label class="filebtn" id="billbtn"><input id="billphoto" type="file" accept="image/*"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg>Fill these from a photo of the bill</label>
+        <div id="hist"></div>
+      </fieldset>
+      <fieldset>
+        <legend><span class="step" aria-hidden="true">2</span>Today</legend>
+        <div class="row">
+          <div><label for="day">Date</label><input id="day" type="date" required></div>
+          <div><label for="now">Meter reading now</label><input id="now" type="number" step="0.1" min="0" inputmode="decimal" required></div>
+        </div>
+        <label class="filebtn" id="meterbtn"><input id="photo" type="file" accept="image/*" capture="environment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Read it from a meter photo</label>
+      </fieldset>
+      <details class="rules"><summary>Limit and rules</summary>
+        <div class="row">
+          <div><label for="thr">Limit, units per month</label><input id="thr" type="number" min="1" value="200"></div>
+          <div><label for="days">Days in billing month</label><input id="days" type="number" min="20" max="40" value="30"></div>
+        </div>
+        <p class="muted">200 is the protected-consumer limit in NEPRA's tariff as of October 2026. Change it if the rule changes.</p>
+      </details>
+      <button class="go" id="go" type="submit">Check this month</button>
+      <p id="status" role="status"></p>
+    </form>
+  </div>
 
-  <form id="f" novalidate>
-    <fieldset>
-      <legend>Last bill</legend>
-      <div class="row">
-        <div><label for="start">Reading date on the bill</label><input id="start" type="date" required></div>
-        <div><label for="sr">Meter reading on that date</label><input id="sr" type="number" step="0.1" min="0" inputmode="decimal" required></div>
-      </div>
-      <div class="row">
-        <div><label for="prev">Units on that bill (optional)</label><input id="prev" type="number" min="0" inputmode="numeric"></div>
-        <div><label for="kw">Sanctioned load, kW</label><input id="kw" type="number" min="0.5" step="0.5" value="2" inputmode="decimal"></div>
-      </div>
-      <label class="filebtn" id="billbtn"><input id="billphoto" type="file" accept="image/*">Fill these from a photo of the bill</label>
-      <div id="hist"></div>
-    </fieldset>
-    <fieldset>
-      <legend>Today</legend>
-      <div class="row">
-        <div><label for="day">Date</label><input id="day" type="date" required></div>
-        <div><label for="now">Meter reading now</label><input id="now" type="number" step="0.1" min="0" inputmode="decimal" required></div>
-      </div>
-      <label class="filebtn" id="meterbtn"><input id="photo" type="file" accept="image/*" capture="environment">Read it from a meter photo</label>
-    </fieldset>
-    <details><summary>Limit and rules</summary>
-      <div class="row">
-        <div><label for="thr">Limit, units per month</label><input id="thr" type="number" min="1" value="200"></div>
-        <div><label for="days">Days in billing month</label><input id="days" type="number" min="20" max="40" value="30"></div>
-      </div>
-      <p class="muted">200 is the protected-consumer limit in NEPRA's tariff as of October 2026. Change it if the rule changes.</p>
-    </details>
-    <button class="go" id="go" type="submit">Check this month</button>
-    <p id="status" role="status"></p>
-  </form>
+  <section class="how" id="how" aria-labelledby="how-title">
+    <h2 id="how-title">How it decides</h2>
+    <ol>
+      <li><b>Two readings in</b><span>Last bill's reading and today's, typed or read from a photo. The photo reader refuses rather than guesses.</span></li>
+      <li><b>A range, not a number</b><span>A model trained on Lahore homes gives a likely total and the range 8 in 10 months like this one end in.</span></li>
+      <li><b>Plain code speaks</b><span>Simple rules, not a model, decide whether to say anything. If it does, you get a daily budget and what it assumed.</span></li>
+    </ol>
+  </section>
 
   <footer class="muted">
     <p>The forecast is in units because units are what you control. Rupee figures are estimates on the February 2026 tariff plus this month's fuel adjustment, and leave out lifeline and income tax. This is not a bill.</p>
