@@ -24,8 +24,8 @@
  │ tariff_docs: tsvector GIN + pgvector HNSW ─► RRF hybrid search   │
  └──────────────▲───────────────────────────────▲───────────────────┘
                 │ bill history                  │ FCA / tariff news
-        bill.fetch_bill (Browserbase +          tariff.watch (SerpApi google + google_news)
-        Playwright CDP ► bill.pitc.com.pk)
+        bill.fetch_bill (form post from a       tariff.watch (Browserbase search + session
+        home connection ► bill.pitc.com.pk)     reads FCA news ► Gemma extracts, code checks quote)
 
  Offline (laptop): data/precon.py ► daily.parquet ► features.build_rows ► evaluate.run_backtest
                    ► docs/RESULTS.md, results/*.json ; export ► slabwatch/assets/train_rows.parquet

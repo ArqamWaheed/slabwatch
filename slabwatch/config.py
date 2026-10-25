@@ -49,7 +49,6 @@ class Settings:
     database_url: str
     browserbase_api_key: str
     browserbase_project_id: str
-    serpapi_key: str
     ntfy_topic: str
     ntfy_server: str
     temporal_address: str
@@ -83,7 +82,6 @@ def settings() -> Settings:
         database_url=env("DATABASE_URL"),
         browserbase_api_key=env("BROWSERBASE_API_KEY"),
         browserbase_project_id=env("BROWSERBASE_PROJECT_ID"),
-        serpapi_key=env("SERPAPI_KEY"),
         ntfy_topic=env("NTFY_TOPIC"),
         ntfy_server=env("NTFY_SERVER", "https://ntfy.sh").rstrip("/"),
         temporal_address=env("TEMPORAL_ADDRESS", "localhost:7233"),
