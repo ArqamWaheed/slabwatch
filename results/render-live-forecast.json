@@ -1,0 +1,108 @@
+{
+ "forecast": {
+  "p10": 191.0208,
+  "p50": 201.0958,
+  "p90": 218.3462,
+  "p_cross": 0.5362,
+  "threshold": 200.0,
+  "levels": [
+   0.05,
+   0.1,
+   0.2,
+   0.3,
+   0.4,
+   0.5,
+   0.6,
+   0.7,
+   0.8,
+   0.9,
+   0.95
+  ],
+  "units": [
+   190.1247551259265,
+   191.0207929273286,
+   192.24112018772877,
+   196.08271153702583,
+   198.06482085979303,
+   201.09577711445598,
+   206.23809134521144,
+   208.20992825253407,
+   216.4293305355828,
+   218.34623308823072,
+   219.2479583122248
+  ],
+  "naive_units": 222.6316,
+  "backend": "gbm"
+ },
+ "decision": {
+  "verdict": "act",
+  "units_so_far": 141.0,
+  "days_elapsed": 19,
+  "days_left": 11,
+  "threshold": 200.0,
+  "daily_budget": 5.363636363636363,
+  "current_rate": 7.421052631578948,
+  "p_cross": 0.5361528515223601,
+  "message": "You've used 141 units in 19 days. To stay under 200 you have 5.4 units/day for 11 days; you're running at 7.4. Chance of going over: about 54%. Likely finish: 191-218.3 units (middle guess 201.1).",
+  "message_ur": "19 din mein 141 unit. 200 se neeche rehne ke liye roz 5.4 unit tak, 11 din. Abhi roz 7.4 chal raha hai.",
+  "assumptions": [
+   "Protected limit 200 units per bill; going over once costs protected status for 6 months (editable in settings; the rule may have changed).",
+   "Billing cycle of 30 days, day 19 today.",
+   "Forecast: gbm; weather: Open-Meteo forecast unavailable, so typical (2008-2017 average) temperatures."
+  ],
+  "severity": 2
+ },
+ "features": {
+  "days_elapsed": 19,
+  "days_left": 11,
+  "units_so_far": 141.0,
+  "rate_so_far": 7.421052631578948,
+  "rate_last_3_days": 7.421052631578945,
+  "rate_last_7_days": 7.421052631578947,
+  "recent_over_rate": 0.9999999999999999,
+  "mean_temp_so_far": 25.14694736842105,
+  "mean_temp_remaining": 22.476727272727274,
+  "temp_delta": -2.670220095693775,
+  "month": 10,
+  "n_acs": null,
+  "area_sqft": null,
+  "people": null,
+  "last_cycle_ratio": null,
+  "prev_total_over_naive": 0.8354609929078014
+ },
+ "money": {
+  "estimate_at_p50": {
+   "units": 201,
+   "status": "unprotected",
+   "energy": 6653.1,
+   "fixed": 700.0,
+   "fca": 222.83,
+   "qta": 104.4,
+   "dss": 649.23,
+   "gst": 1499.32,
+   "total": 9828.88,
+   "rate_note": "201 x 33.1 (whole month at this slab's rate)"
+  },
+  "cliff": {
+   "this_month_extra": 5874,
+   "next_months_extra": 26374,
+   "total_extra": 32248,
+   "penalty_months": 6,
+   "assumes": "tariff 2026-02-12 (S.R.O. 279(I)/2026); FCA 1.1086/kWh and QTA 0.5194/kWh every month; 2 kW sanctioned load; typical month 186 units"
+  },
+  "note": "estimate; tariff and assumptions in docs/TARIFF.md"
+ },
+ "_request": {
+  "cycle_start": "2026-10-05",
+  "start_reading": 10000,
+  "prev_cycle_units": 186,
+  "readings": [
+   {
+    "date": "2026-10-24",
+    "reading_kwh": 10141
+   }
+  ],
+  "url": "https://slabwatch-ojcn.onrender.com/api/forecast",
+  "checked": "2026-10-25"
+ }
+}
