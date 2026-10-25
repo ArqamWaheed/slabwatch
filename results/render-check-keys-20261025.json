@@ -1,0 +1,43 @@
+{
+ "url": "https://slabwatch-ojcn.onrender.com",
+ "checked": "2026-10-25T10:2xZ",
+ "config": {
+  "backend": "blend",
+  "photo_enabled": true
+ },
+ "keys_from": "Render Secret Files at /etc/secrets/<NAME> (slabwatch/config.py env fallback)",
+ "forecast": {
+  "first_seconds": 31.74556,
+  "second_seconds": 2.712689,
+  "backend": "blend",
+  "p50": 203.5,
+  "p_cross": 0.659,
+  "verdict": "act",
+  "weather_assumption": "Forecast: blend; weather: Open-Meteo forecast unavailable, so typical (2008-2017 average) temperatures."
+ },
+ "photo_clear_meter": {
+  "file": "m11 (truth 2439)",
+  "seconds": 15.819933,
+  "result": {
+   "reading_kwh": 2439.0,
+   "display_label": "kWh",
+   "confidence": 1.0,
+   "unreadable_reason": null
+  }
+ },
+ "photo_multi_meter": {
+  "file": "m09 (should refuse)",
+  "seconds": 11.627656,
+  "result": {
+   "reading_kwh": null,
+   "display_label": null,
+   "confidence": 1.0,
+   "unreadable_reason": "Multiple meters are present in the photo; cannot determine which one is the target meter."
+  }
+ },
+ "bill_photo_ke_specimen": {
+  "seconds": 17.324329,
+  "current_units": 179.0,
+  "months": 12
+ }
+}
