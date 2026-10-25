@@ -44,8 +44,10 @@ Other commands: `add-reading`, `worker`, `start-cycle`, `db-init`, `fetch-bill`,
   daily kWh. Training rows = 30-day windows x cut days 5..25. See [docs/DATA.md](docs/DATA.md).
 - **Target:** `final_units / (units_so_far / days_elapsed x 30)`, the ratio to the multiply-it-out estimate. It is
   scale-free, so big PRECON homes still teach the shape of a cycle.
-- **Model:** TabPFN regressor quantiles (API on Render via `tabpfn-client`, TabPFN-3.5 locally for the backtest).
-  Gradient boosting and two heuristics are the baselines. P(cross) comes from the predicted quantiles.
+- **Model:** the mean of gradient-boosting and TabPFN quantiles (TabPFN through Prior Labs' API via `tabpfn-client`),
+  calibrated on the dev homes; it won the pre-registered test ([docs/PROTOCOL-RESULTS.md](docs/PROTOCOL-RESULTS.md)).
+  A local TabPFN-3.5 backend exists but was too slow on CPU, so no reported number uses it. P(cross) comes from the
+  predicted quantiles.
 - **Decision:** `slabwatch/decide.py`: safe / watch / unsure / act / already_over. Code, not a model.
 - **Reading:** Gemma reads meter photos and bills into strict JSON and refuses when it can't read.
 - **Runtime:** Render web service (`render.yaml`), Temporal cycle workflow, PITC bill fetch (form post from a home connection),
