@@ -31,12 +31,12 @@ sklearn GBM. Open-Meteo. PRECON via CKAN. Temporal python SDK. Browserbase (tari
 - KE specimen via /api/bill-photo: 7/13 months (last months shifted).
 
 ## Still open
-- Render secrets: user must paste TABPFN_TOKEN, GOOGLE_API_KEY (+DATABASE_URL, NTFY_TOPIC) in Render Environment, then
-  FORECAST_BACKEND=blend (I may not type secrets into forms). Live forecast verified 200 on gbm after the fallback.
+- Render: keys are Render Secret Files (/etc/secrets/<NAME>, read by config.env fallback); FORECAST_BACKEND=blend env var.
+  Live-checked 2026-10-25: blend forecast, Gemma meter read + refusal, bill photo (results/render-check-keys-20261025.json).
 - DEV post v2 (outcome-led, 'Why not just divide?' case studies from results/session-outcomes.json, news citations,
-  FCA watcher described as a separate job): draft saved on dev.to, unpublished; source `../articlewriting/hacktoberfest-week3-slabwatch.md`.
-  Images in docs/images (scripts/post_images.py from results/ + 2 Google Flow illustrations). Update the Demo paragraph
-  once keys are on Render.
+  FCA watcher described as a separate job; title mixes Rs 32,000 hook + day-14 outcome; live-keys demo table; no checklist
+  comment, no personal story by user's choice): draft saved on dev.to, unpublished; source `../articlewriting/hacktoberfest-week3-slabwatch.md`.
+  Images in docs/images (scripts/post_images.py from results/ + 2 Google Flow illustrations).
 - App FCA is the setting FCA_DEFAULT (bill_estimate.py); tariff-watch is a laptop job, not read by the app (post says so).
 - `gemma.check_against_previous()` is not called anywhere (post says so; wire into /api/reading after deadline).
 - Real consented bill ref, real household photos / live family, Temporal UI screenshot + kill/resume log.
