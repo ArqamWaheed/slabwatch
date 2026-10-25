@@ -39,7 +39,7 @@ build-backend = "setuptools.build_meta"
 include = ["slabwatch*"]
 
 [tool.setuptools.package-data]
-slabwatch = ["sql/*.sql", "static/*", "assets/*.parquet"]
+slabwatch = ["sql/*.sql", "static/*", "assets/*.parquet", "assets/*.json", "assets/*.pkl.gz"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

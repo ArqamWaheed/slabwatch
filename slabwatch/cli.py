@@ -232,6 +232,13 @@ def cmd_fetch_bill(a: argparse.Namespace) -> int:
     return 0 if got.get("ok") else 1
 
 
+def cmd_export_gbm(a: argparse.Namespace) -> int:
+    from slabwatch.service import export_gbm_asset
+
+    print(export_gbm_asset())
+    return 0
+
+
 def cmd_tariff_watch(a: argparse.Namespace) -> int:
     from slabwatch import tariff
 
@@ -294,6 +301,8 @@ def build_parser() -> argparse.ArgumentParser:
     sc.add_argument("--cycle-days", type=int, default=30)
     sc.set_defaults(fn=cmd_start_cycle)
 
+    sub.add_parser("export-gbm", help="fit the blend's GBM on the shipped train rows and ship it (fast cold start)"
+                   ).set_defaults(fn=cmd_export_gbm)
     sub.add_parser("db-init", help="create tables (+hypertables, +pgvector if available)").set_defaults(fn=cmd_db_init)
 
     pr = sub.add_parser("protocol", help="pre-registered dev/test evaluation (docs/PROTOCOL.md)")

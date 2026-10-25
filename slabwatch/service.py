@@ -38,7 +38,7 @@ def model(backend: str | None = None, max_rows: int = 3000):
         df = training_rows()
         if (backend.startswith("tabpfn") or backend == "blend") and len(df) > max_rows:
             df = df.sample(max_rows, random_state=0)
-        f = Forecaster(backend, token=s.tabpfn_token)
+        f = Forecaster(backend, token=s.tabpfn_token, cache=True)
         if backend not in ("naive", "last_ratio"):
             f.fit(feature_matrix(df).values, df["ratio"].values)
         return f
@@ -113,6 +113,28 @@ def notify(message: str, title: str = "Slabwatch", priority: str = "default") ->
     s = settings()
     topic = s.require("ntfy_topic", "NTFY_TOPIC", "push notifications")
     return post_text(f"{s.ntfy_server}/{topic}", message, {"Title": title, "Priority": priority})
+
+
+def export_gbm_asset(max_rows: int = 3000) -> Path:
+    """Ship the blend's fitted GBM for the rows Render uses (the train asset), so a cold start skips that fit."""
+    import shutil
+
+    import pandas as pd
+
+    from slabwatch.forecast import GBM_PARAMS_B, QUANTILES, Forecaster, gbm_key, gbm_paths
+
+    with resources.as_file(resources.files("slabwatch").joinpath(TRAIN_ASSET)) as p:
+        df = pd.read_parquet(p)
+    if len(df) > max_rows:  # same sample as model() so the fingerprint matches
+        df = df.sample(max_rows, random_state=0)
+    X, y = feature_matrix(df).values, df["ratio"].values
+    Forecaster("gbm", gbm_params=GBM_PARAMS_B, cache=True).fit(X, y)
+    shipped, cached = gbm_paths(gbm_key(X, y, GBM_PARAMS_B, QUANTILES, 0))
+    if not shipped.exists():
+        for old in shipped.parent.glob("gbm-*.pkl.gz"):
+            old.unlink()
+        shutil.copyfile(cached, shipped)
+    return shipped
 
 
 def export_train_asset(df, path: Path | None = None, max_rows: int = 5000) -> Path:

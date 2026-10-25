@@ -35,6 +35,55 @@ GBM_PARAMS = dict(loss="quantile", max_iter=150, learning_rate=0.05, max_depth=3
 GBM_PARAMS_B = {**GBM_PARAMS, "max_depth": 5, "min_samples_leaf": 20, "max_iter": 250}
 
 
+def gbm_key(X, y, params: dict, quantiles, seed: int) -> str:
+    """Fingerprint of a GBM fit: same rows, params, levels, seed and sklearn version -> same models."""
+    import hashlib
+
+    import sklearn
+
+    h = hashlib.sha256()
+    for part in (np.ascontiguousarray(X, float).tobytes(), np.ascontiguousarray(y, float).tobytes(),
+                 repr(sorted(params.items())).encode(), repr(tuple(quantiles)).encode(), str(seed).encode(),
+                 sklearn.__version__.encode()):
+        h.update(part)
+    return h.hexdigest()[:16]
+
+
+def gbm_paths(key: str) -> list:
+    """Where a fitted GBM may live: shipped with the package (Render), then the local cache."""
+    from importlib import resources
+    from pathlib import Path
+
+    from slabwatch.config import CACHE
+
+    return [Path(str(resources.files("slabwatch").joinpath(f"assets/gbm-{key}.pkl.gz"))), CACHE / f"gbm-{key}.pkl.gz"]
+
+
+def _load_gbm(key: str):
+    import gzip
+    import pickle
+
+    for p in gbm_paths(key):
+        if p.is_file():
+            try:
+                return pickle.loads(gzip.decompress(p.read_bytes()))  # our own file, written by _save_gbm
+            except Exception:  # noqa: BLE001  (corrupt or incompatible: refit)
+                continue
+    return None
+
+
+def _save_gbm(key: str, models) -> None:
+    import gzip
+    import pickle
+
+    p = gbm_paths(key)[-1]
+    try:
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_bytes(gzip.compress(pickle.dumps(models), mtime=0))
+    except OSError:
+        pass  # read-only disk: just refit next time
+
+
 def calibration_shifts(name: str = "blend"):
     import json
     from importlib import resources
@@ -96,13 +145,14 @@ def _value_at(level: float, levels, values) -> float:
 
 class Forecaster:
     def __init__(self, backend: str = "gbm", quantiles=QUANTILES, token: str = "", seed: int = 0,
-                 gbm_params: dict | None = None):
+                 gbm_params: dict | None = None, cache: bool = False):
         if backend not in BACKENDS:
             raise ValueError(f"backend must be one of {BACKENDS}")
         if backend == "blend" and tuple(quantiles) != QUANTILES:
             raise ValueError("blend calibration was fitted at QUANTILES")
         self.backend, self.q, self.token, self.seed = backend, tuple(quantiles), token, seed
         self.gbm_params = gbm_params or GBM_PARAMS
+        self.cache = cache  # GBM only: reuse a fit saved on disk (the app; backtests refit every fold)
         self._models = None
 
     # ---------------------------------------------------------------- fit
@@ -110,21 +160,32 @@ class Forecaster:
         X = np.asarray(X, float)
         y = np.asarray(y, float)
         if self.backend == "blend":
-            self._models = [Forecaster("gbm", self.q, seed=self.seed, gbm_params=GBM_PARAMS_B).fit(X, y),
-                            Forecaster("tabpfn_api", self.q, token=self.token, seed=self.seed).fit(X, y)]
+            from concurrent.futures import ThreadPoolExecutor
+
+            # GBM is CPU, the TabPFN API fit is network: run them side by side.
+            parts = [Forecaster("gbm", self.q, seed=self.seed, gbm_params=GBM_PARAMS_B, cache=self.cache),
+                     Forecaster("tabpfn_api", self.q, token=self.token, seed=self.seed)]
+            with ThreadPoolExecutor(2) as ex:
+                self._models = list(ex.map(lambda m: m.fit(X, y), parts))
             self._fitted = True
             return self
         if self.backend == "gbm":
             from sklearn.ensemble import HistGradientBoostingRegressor
             from threadpoolctl import threadpool_limits
 
-            # Small data: shallow, regularised trees. One thread: with ~1-5k rows OpenMP thread
-            # contention made 5-fold x 11 quantiles take 150 s instead of ~10 s on a 16-thread laptop.
-            with threadpool_limits(1):
-                self._models = [
-                    HistGradientBoostingRegressor(**self.gbm_params, quantile=a, random_state=self.seed).fit(X, y)
-                    for a in self.q
-                ]
+            # With cache=True the fit is stored by gbm_key (deterministic fit): a restart skips the ~15 s fit.
+            key = gbm_key(X, y, self.gbm_params, self.q, self.seed) if self.cache else None
+            self._models = _load_gbm(key) if key else None
+            if self._models is None:
+                # Small data: shallow, regularised trees. One thread: with ~1-5k rows OpenMP thread
+                # contention made 5-fold x 11 quantiles take 150 s instead of ~10 s on a 16-thread laptop.
+                with threadpool_limits(1):
+                    self._models = [
+                        HistGradientBoostingRegressor(**self.gbm_params, quantile=a, random_state=self.seed).fit(X, y)
+                        for a in self.q
+                    ]
+                if key:
+                    _save_gbm(key, self._models)
         elif self.backend == "tabpfn_local":
             try:
                 from tabpfn import TabPFNRegressor  # type: ignore
