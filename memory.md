@@ -31,9 +31,14 @@ sklearn GBM. Open-Meteo. PRECON via CKAN. Temporal python SDK. Browserbase (tari
 - KE specimen via /api/bill-photo: 7/13 months (last months shifted).
 
 ## Still open
-Render secrets (TABPFN_TOKEN, GOOGLE_API_KEY, ...; then FORECAST_BACKEND=blend) · verify live forecast after the fallback deploy · real consented 14-digit bill ref · real household meter
-photos / live family · the DEV post · Temporal UI screenshot + kill/resume log.
-TO VERIFY: embeddinggemma dim 768; Render 512 MB fit; PITC post-submit layout + captcha; unar on House3/5 CRC.
+- Render secrets: user must paste TABPFN_TOKEN, GOOGLE_API_KEY (+DATABASE_URL, NTFY_TOPIC) in Render Environment, then
+  FORECAST_BACKEND=blend (I may not type secrets into forms). Live forecast verified 200 on gbm after the fallback.
+- DEV post: draft saved on dev.to (unpublished, 2026-10-25); source `../articlewriting/hacktoberfest-week3-slabwatch.md`.
+  Images in docs/images (scripts/post_images.py from results/ + 2 Google Flow illustrations). Update the Demo paragraph
+  once keys are on Render.
+- `gemma.check_against_previous()` is not called anywhere (post says so; wire into /api/reading after deadline).
+- Real consented bill ref, real household photos / live family, Temporal UI screenshot + kill/resume log.
+TO VERIFY: embeddinggemma dim 768; Render 512 MB fit with blend; PITC post-submit layout + captcha; unar on House3/5 CRC.
 
 ## File map
 - `slabwatch/cli.py`: all commands · `config.py` env · `net.py` HTTP
