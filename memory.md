@@ -33,9 +33,11 @@ sklearn GBM. Open-Meteo. PRECON via CKAN. Temporal python SDK. Browserbase (tari
 ## Still open
 - Render secrets: user must paste TABPFN_TOKEN, GOOGLE_API_KEY (+DATABASE_URL, NTFY_TOPIC) in Render Environment, then
   FORECAST_BACKEND=blend (I may not type secrets into forms). Live forecast verified 200 on gbm after the fallback.
-- DEV post: draft saved on dev.to (unpublished, 2026-10-25); source `../articlewriting/hacktoberfest-week3-slabwatch.md`.
+- DEV post v2 (outcome-led, 'Why not just divide?' case studies from results/session-outcomes.json, news citations,
+  FCA watcher described as a separate job): draft saved on dev.to, unpublished; source `../articlewriting/hacktoberfest-week3-slabwatch.md`.
   Images in docs/images (scripts/post_images.py from results/ + 2 Google Flow illustrations). Update the Demo paragraph
   once keys are on Render.
+- App FCA is the setting FCA_DEFAULT (bill_estimate.py); tariff-watch is a laptop job, not read by the app (post says so).
 - `gemma.check_against_previous()` is not called anywhere (post says so; wire into /api/reading after deadline).
 - Real consented bill ref, real household photos / live family, Temporal UI screenshot + kill/resume log.
 TO VERIFY: embeddinggemma dim 768; Render 512 MB fit with blend; PITC post-submit layout + captcha; unar on House3/5 CRC.
