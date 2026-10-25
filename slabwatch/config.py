@@ -24,8 +24,25 @@ def load_dotenv(path: Path = ROOT / ".env") -> None:
         os.environ.setdefault(key.strip(), value)
 
 
+SECRETS_DIR = Path(os.environ.get("SLABWATCH_SECRETS_DIR", "/etc/secrets"))
+
+
+def _secret_file(name: str) -> str:
+    """Render Secret Files are mounted at /etc/secrets/<filename>. A file named like the variable holds its value
+    (either the bare value or a `NAME=value` line)."""
+    path = SECRETS_DIR / name
+    try:
+        text = path.read_text().strip() if path.is_file() else ""
+    except OSError:
+        return ""
+    if text.startswith(f"{name}="):
+        text = text[len(name) + 1:]
+    return text.split(" #", 1)[0].strip().strip('"').strip("'")
+
+
 def env(name: str, default: str = "") -> str:
-    v = os.environ.get(name, "")
+    """Environment variable (or .env), then a Render secret file of the same name, then the default."""
+    v = os.environ.get(name, "") or _secret_file(name)
     return v if v != "" else default
 
 
